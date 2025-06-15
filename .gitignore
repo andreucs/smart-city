@@ -140,3 +140,15 @@ cython_debug/
 
 # MacOS
 ./DS_Store
+
+# data directories
+data/valenbici/
+data/weather/
+data/dataset.csv
+
+# models
+model/final_model.pkl
+model/retrained_model.pkl
+
+# figures, tentative
+figures/
