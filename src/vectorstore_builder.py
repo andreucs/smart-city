@@ -7,7 +7,11 @@ import faiss
 import torch
 import pandas as pd
 import PyPDF2
-import src.config as config
+
+try:
+    import src.config as config
+except:
+    import config
 
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
