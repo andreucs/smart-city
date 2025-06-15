@@ -1,7 +1,7 @@
-# import os
+import os
 
-# REPO_PATH = os.getcwd() # /smart-city
-REPO_PATH = "../"
+REPO_PATH = os.getcwd() # /smart-city
+# REPO_PATH = ".."
 DATA_PATH = f"{REPO_PATH}/data"
 MODEL_PATH = f"{REPO_PATH}/model"
 DATA_WEATHER_PATH = f"{DATA_PATH}/weather"
