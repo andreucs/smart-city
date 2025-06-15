@@ -145,6 +145,9 @@ cython_debug/
 data/valenbici/
 data/weather/
 data/dataset.csv
+data/bike_stations.csv
+data/distance_matrix.csv
+data/duration_matrix.csv
 
 # models
 model/final_model.pkl
