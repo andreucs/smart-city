@@ -150,8 +150,8 @@ data/distance_matrix.csv
 data/duration_matrix.csv
 
 # models
-model/final_model.pkl
-model/retrained_model.pkl
+# model/final_model.pkl
+# model/retrained_model.pkl
 
 # figures, tentative
 figures/
