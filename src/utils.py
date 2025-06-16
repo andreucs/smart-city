@@ -88,7 +88,7 @@ def plot_target_time_series(
     )
 
     # Save high-res figure
-    filename = f"{config.FIGURES_PATH}/valenbici_bikes_{month_name.lower()}.png"
+    filename = f"../figures/valenbici_bikes_{month_name.lower()}.png"
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
     plt.show()
@@ -179,7 +179,7 @@ def plot_wheather_time_series(
     )
 
     # Save high-res figure
-    filename = f"{config.FIGURES_PATH}/valenbici_weather_{month_name.lower()}.png"
+    filename = f"../figures/valenbici_weather_{month_name.lower()}.png"
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
     plt.show()
@@ -232,7 +232,7 @@ def plot_test_time_series(
 
     # Load the retrained model
     # model_path = os.path.join('model', 'retrained_model.pkl')
-    model = joblib.load(f"{config.MODEL_PATH}/retrained_model.pkl")
+    model = joblib.load(f"../model/retrained_model.pkl")
 
     # Prepare features and run inference
     TARGET = 'bikes_available'
@@ -296,7 +296,7 @@ def plot_test_time_series(
 
     # Save high-res figure
     station_str = "_".join(str(s) for s in station_ids)
-    filename = f"{config.FIGURES_PATH}/valenbici_test_may2025_stations_{station_str}.png"
+    filename = f"../figures/valenbici_test_may2025_stations_{station_str}.png"
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
     # Show on screen
@@ -335,7 +335,7 @@ def plot_metrics_by_hour(df: pd.DataFrame) -> None:
 
     # Load the retrained model
     # model_path = os.path.join('model', 'retrained_model.pkl')
-    model = joblib.load(f"{config.MODEL_PATH}/retrained_model.pkl")
+    model = joblib.load(f"../model/retrained_model.pkl")
 
     # Prepare features and predict
     TARGET = 'bikes_available'
@@ -391,7 +391,7 @@ def plot_metrics_by_hour(df: pd.DataFrame) -> None:
     )
 
     # Save high-res figure
-    filename = f"{config.FIGURES_PATH}/valenbici_hourly_metrics_may2025.png"
+    filename = f"../figures/valenbici_hourly_metrics_may2025.png"
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
     # Show on screen
