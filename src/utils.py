@@ -728,7 +728,20 @@ def plot_pdp_or_ice(
     "random_state": 0,
     "grid_resolution": 100 
 }
+    categorical_features = ['weekday', 'is_weekend']
+    ft_c = [f for f in ft if isinstance(f, str) and f in categorical_features]
+
+
+    # ft_c = [f for f in feature_cols if f in categorical_features and len(f) == 1]  # selecciona las variables categóricas
+
+    if len(ft_c) == 0 or choice_n != 'average':
+        ft_c = None
     # variables de interes
+    features_info = {
+    'features': ft,
+    'categorical_features':ft_c
+}
+    
 
     if len(ft) == 1:
         cols = 1
@@ -750,11 +763,12 @@ def plot_pdp_or_ice(
     if choice_n != 'average':
         c = True
     #realizamos el plot de las variables de interes
-    _, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(9, 8), constrained_layout=True)
+    _, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(12, 10), constrained_layout=True)
+    
     display = PartialDependenceDisplay.from_estimator(
     model,
     X_test,
-    features=ft,
+    **features_info,
     centered=c,
     **common_params,
     ax=ax,
