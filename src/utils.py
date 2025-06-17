@@ -10,6 +10,8 @@ import math
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 from matplotlib import rcParams
 from tqdm import tqdm
+from sklearn.inspection import PartialDependenceDisplay
+from sklearn.inspection import partial_dependence
 
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['Roboto', 'Helvetica', 'Arial']
@@ -418,7 +420,7 @@ def plot_naive_forecast(
 
     This function:
       1. Filters the DataFrame to May 2025.
-      2. Loads a LightGBM regressor from 'model/retrained_model.pkl'.
+      2. Prepares a naive forecast based on April 2025 data.
       3. Runs inference on the test set.
       4. Creates one stacked subplot per station ID, showing real vs. predicted series.
       5. Shows the legend only on the first subplot.
@@ -547,7 +549,7 @@ def plot_metrics_by_hour_naive_forecast(df: pd.DataFrame) -> None:
 
     This function:
       1. Filters the DataFrame to May 2025.
-      2. Loads a LightGBM regressor from 'model/retrained_model.pkl'.
+      2. Prepares a naive forecast based on April 2025 data.
       3. Runs inference on the test set.
       4. Groups predictions by hour of day and computes MAE, MSE, RMSE.
       5. Displays three bar charts: MAE, MSE, RMSE by hour, labeling only every 4 hours.
@@ -649,3 +651,150 @@ def plot_metrics_by_hour_naive_forecast(df: pd.DataFrame) -> None:
 
     # Show on screen
     plt.show()
+
+
+
+def plot_pdp_or_ice(
+    df: pd.DataFrame,
+    station_ids: list = [83, 178, 112],
+    choice: str = "pdp",
+    ft: list = ["temperature_celsius", "precipitation_mm", "weekday", "wind_speed_kmh", "hour", "is_weekend"]
+    #station_ids: List[int]
+) -> None:
+    """
+    Plot actual vs. predicted bikes_available for specified stations during May 2025,
+    and save the figure in high resolution.
+
+    This function:
+      1. Filters the DataFrame to May 2025.
+      2. Loads a LightGBM regressor from 'model/retrained_model.pkl'.
+      3. Runs inference on the test set.
+      4. Creates the partial dependece or ICE plots for the specified features.
+      5. Saves the resulting figure as a PNG at 300 DPI.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Must contain:
+          - 'timestamp' (datetime or parsable string)
+          - 'id' (station identifier)
+          - 'bikes_available' (target)
+          - all feature columns used by the model, including 'id'
+    station_ids : List[int]
+        List of station IDs to plot.
+
+    Returns
+    -------
+    None
+        Displays the figure and saves it to disk.
+    """
+
+    if choice == "pdp":
+        choice_n = 'average'
+    elif choice == "ice":
+        choice_n = 'individual'
+    else:
+        choice_n = 'both'
+
+    # Ensure timestamp is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+        df = df.copy()
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+
+    # Filter to May 2025
+    is_may_2025 = (
+        (df['timestamp'].dt.year  == 2025) &
+        (df['timestamp'].dt.month == 5)
+    )
+    mayo = df.loc[is_may_2025].copy()
+    mayo2 = mayo[mayo["id"].isin(station_ids)]
+    # Load the retrained model
+    # model_path = os.path.join('model', 'retrained_model.pkl')
+    model = joblib.load(f"../model/retrained_model.pkl")
+
+    # Prepare features and run inference
+    y = 'bikes_available'
+    feature_cols = [c for c in mayo2.columns if c not in ('timestamp', y)]
+    X_test = mayo2[feature_cols]
+
+    
+    #mayo['predicted'] = model.predict(X_test)
+
+    # configuración de las características de la gráfica
+    common_params = {
+    "subsample": 500, #uses a subsample of the data to speed up the computation
+    "grid_resolution": 50,
+    "n_jobs": -1,  # Usa todos los núcleos disponibles
+    "random_state": 0,
+    "grid_resolution": 100 
+}
+    # variables de interes
+
+    if len(ft) == 1:
+        cols = 1
+        rows = 1
+    elif len(ft) == 2:
+        cols = 2
+        rows = 1
+    elif len(ft) == 3:
+        cols = 3
+        rows = 1
+    elif len(ft) == 4:
+        cols = 2
+        rows = 2
+    elif len(ft) in [5, 6]:
+        cols = 3
+        rows = 2
+    
+    c = False # para que no se centren los plots a menos que sea 'both' o 'ice'
+    if choice_n != 'average':
+        c = True
+    #realizamos el plot de las variables de interes
+    _, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(9, 8), constrained_layout=True)
+    display = PartialDependenceDisplay.from_estimator(
+    model,
+    X_test,
+    features=ft,
+    centered=c,
+    **common_params,
+    ax=ax,
+    kind= choice_n,
+    ice_lines_kw= {"color":"gray", "alpha":0.6}, # para el caso de ice
+    pd_line_kw = {"color": "black", "lw" : 0.8} #
+)
+
+    if choice_n == 'both':
+                # Elimina leyendas internas de cada subplot
+        for idx, ax in enumerate( display.axes_.ravel()):
+            ax.legend_.remove() 
+
+            if idx ==  1:
+                ax.legend(
+                    loc='upper center',              # coloca la leyenda arriba y centrada dentro del subplot
+                    bbox_to_anchor=(0.5, 1.10),      # la empuja aún más arriba, fuera del área del eje
+                    ncol=2,                          # muestra la leyenda en 2 columnas
+                    frameon=False,                   # sin borde alrededor
+                    fontsize=9                       # tamaño del texto
+                )
+
+    fig = display.figure_  # esto es una figura real
+
+    fig.suptitle(
+        (
+            f"Partial dependence of the number of bike rentals in stations {station_ids}\n"
+            "for the bike rental dataset with lightgbm regressor"
+        ),
+        fontsize=16,
+        fontweight='bold'
+    )
+
+
+    # Save high-res figure
+    station_str = "_".join(str(s) for s in station_ids)
+    filename = f"../figures/{choice}_for_{station_str}.png"
+    fig.savefig(filename, dpi=300, bbox_inches='tight')
+
+
+
+
+
