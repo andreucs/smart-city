@@ -706,16 +706,17 @@ def plot_pdp_or_ice(
         (df['timestamp'].dt.year  == 2025) &
         (df['timestamp'].dt.month == 5)
     )
-    mayo = df.loc[is_may_2025].copy()
-    mayo2 = mayo[mayo["id"].isin(station_ids)]
+
+    resto = df.loc[~is_may_2025].copy()
+    resto2 = resto[resto["id"].isin(station_ids)]
     # Load the retrained model
     # model_path = os.path.join('model', 'retrained_model.pkl')
     model = joblib.load(f"../model/retrained_model.pkl")
 
     # Prepare features and run inference
     y = 'bikes_available'
-    feature_cols = [c for c in mayo2.columns if c not in ('timestamp', y)]
-    X_test = mayo2[feature_cols]
+    feature_cols = [c for c in resto2.columns if c not in ('timestamp', y)]
+    X_train = resto2[feature_cols]
 
     
     #mayo['predicted'] = model.predict(X_test)
@@ -767,7 +768,7 @@ def plot_pdp_or_ice(
     
     display = PartialDependenceDisplay.from_estimator(
     model,
-    X_test,
+    X_train,
     **features_info,
     centered=c,
     **common_params,
