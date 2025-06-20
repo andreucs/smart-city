@@ -89,6 +89,44 @@ def compute_matrices(
     return distance_matrix, duration_matrix
 
 
+def compute_walking_durations(
+    coordinates: List[Tuple[float, float]],
+    api_key: str
+) -> List[List[float]]:
+    """
+    Compute duration matrix (walking time) using ORS API.
+
+    Args:
+        coordinates (List[Tuple[float, float]]): List of (lon, lat) pairs.
+        api_key (str): OpenRouteService API key.
+
+    Returns:
+        List[List[float]]: NxN matrix in seconds.
+    """
+    client = Client(key=api_key)
+    n = len(coordinates)
+    chunk_size = min(n, int(math.floor(math.sqrt(MAX_ELEMENTS))))
+    src_ranges = chunk_indices(n, chunk_size)
+    dst_ranges = src_ranges
+
+    duration_matrix = [[0.0] * n for _ in range(n)]
+
+    for src_range in src_ranges:
+        for dst_range in dst_ranges:
+            response = client.distance_matrix(
+                locations=coordinates,
+                sources=list(src_range),
+                destinations=list(dst_range),
+                metrics=["duration"],
+                profile="foot-walking",
+            )
+            for i, si in enumerate(src_range):
+                for j, dj in enumerate(dst_range):
+                    duration_matrix[si][dj] = response["durations"][i][j]
+            time.sleep(1)  # evitar rate limit
+
+    return duration_matrix
+
 def main() -> None:
     """
     Main orchestration: load stations, compute matrices, and save to CSV.
@@ -103,7 +141,7 @@ def main() -> None:
     log("[OK] API key loaded")
 
     log("[INFO] Reading station data from 'bike_stations.csv'")
-    df = pd.read_csv("bike_stations.csv", dtype={"id": str, "lat": float, "lon": float})
+    df = pd.read_csv("./data/bike_stations.csv", dtype={"id": str, "lat": float, "lon": float})
     df = df.sort_values("id").reset_index(drop=True)
     station_ids = df["id"].tolist()
     coords = list(zip(df["lon"].tolist(), df["lat"].tolist()))
@@ -123,6 +161,14 @@ def main() -> None:
     dur_df.index.name = "id"
     dur_df.reset_index().to_csv("duration_matrix.csv", index=False)
     log("[OK] duration_matrix.csv saved")
+
+    durations_w = compute_walking_durations(coords, api_key)
+    log("[INFO] Saving duration matrix to 'duration_matrix.csv'")
+    dur_w_df = pd.DataFrame(durations_w, index=station_ids, columns=station_ids)
+    dur_w_df.index.name = "id"
+    dur_w_df.reset_index().to_csv("duration_w_matrix.csv", index=False)
+    log("[OK] duration_w_matrix.csv saved")
+
 
     log("[OK] All matrices computed and saved successfully")
 

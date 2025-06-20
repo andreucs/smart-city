@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_8b25cce5c2d01f784b9b575cf1d4fee2 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/marslan390/BeautifyMarker/leaflet-beautify-marker-icon.min.css"/>
+</head>
+<body>
+    
+    
+    <div style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 250px;
+        background-color: white;
+        border:2px solid grey;
+        z-index:9999;
+        font-size:11px;
+        padding: 10px;
+        box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+        ">
+        <i class="fa fa-map-marker fa-2x" style="color:cadetblue"></i> Start or Finish Station<br>
+        <i class="fa fa-map-marker fa-2x" style="color:CornflowerBlue"></i> Bike Change Station <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="cadetblue" stroke-width="3"/></svg> Path Cycling <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="mediumseagreen" stroke-width="3"/></svg> Path Walking <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="salmon" stroke-width="3"/></svg> Path Cycling (search of bike parking) <br>
+        
+    </div>
+    
+    
+            <div class="folium-map" id="map_8b25cce5c2d01f784b9b575cf1d4fee2" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_8b25cce5c2d01f784b9b575cf1d4fee2 = L.map(
+                "map_8b25cce5c2d01f784b9b575cf1d4fee2",
+                {
+                    center: [39.48004223020643, -0.3829292797331582],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 14,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_091b202097413cbcec4d084badcfb262 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_091b202097413cbcec4d084badcfb262.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var marker_e7d338d820a2943444bce8ca6264dbc4 = L.marker(
+                [39.48004223020643, -0.3829292797331582],
+                {
+}
+            ).addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var beautify_icon_38863a0a026849be9088d4e18f3b012f = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "teal",
+  "textColor": "white",
+  "backgroundColor": "cadetblue",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 1,
+}
+            )
+            marker_e7d338d820a2943444bce8ca6264dbc4.setIcon(beautify_icon_38863a0a026849be9088d4e18f3b012f);
+        
+    
+        var popup_0e31bbca237e03db5bae229b7584e13d = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_531328218661ba64c5efa6566f9e9a33 = $(`<div id="html_531328218661ba64c5efa6566f9e9a33" style="width: 100.0%; height: 100.0%;">                 <div style="width:400px;">                 <h2>🚴 Start - Station 1</h2><br>                 <b>Address:</b> C/GUILLEM DE CASTRO esquina con C/NA JORDANA<br>                 🕒 <b>Real arrival hour:</b> 2025-05-01 08:00<br>                 ⏱ <b>Time:</b> 4.0 min<br>                 🚲 <b>Available bikes at 08:15:</b> 0.0<br>                 🅿️ <b>Available spots at 08:15:</b> 25.0                 </div>                 </div>`)[0];
+                popup_0e31bbca237e03db5bae229b7584e13d.setContent(html_531328218661ba64c5efa6566f9e9a33);
+            
+        
+
+        marker_e7d338d820a2943444bce8ca6264dbc4.bindPopup(popup_0e31bbca237e03db5bae229b7584e13d)
+        ;
+
+        
+    
+    
+            marker_e7d338d820a2943444bce8ca6264dbc4.bindTooltip(
+                `<div>
+                     Station 1 / 3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_e7d338d820a2943444bce8ca6264dbc4.setIcon(beautify_icon_38863a0a026849be9088d4e18f3b012f);
+            
+    
+        function geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "mediumseagreen", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_ea3bfa4695e8c58cb7d310e9cc77583c = L.geoJson(null, {
+                onEachFeature: geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_onEachFeature,
+            
+                style: geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_styler,
+            ...{
+}
+        });
+
+        function geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_add (data) {
+            geo_json_ea3bfa4695e8c58cb7d310e9cc77583c
+                .addData(data);
+        }
+            geo_json_ea3bfa4695e8c58cb7d310e9cc77583c_add({"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "features": [{"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "geometry": {"coordinates": [[-0.382947, 39.480046], [-0.382954, 39.480026], [-0.383021, 39.480031], [-0.38308, 39.480032], [-0.383166, 39.480033], [-0.383162, 39.480058], [-0.383153, 39.480124], [-0.383151, 39.480155], [-0.383144, 39.480239], [-0.383139, 39.480309], [-0.383131, 39.480328], [-0.383108, 39.480384], [-0.383085, 39.48043], [-0.383059, 39.480459], [-0.38292, 39.480522], [-0.382856, 39.480552], [-0.38278, 39.48059], [-0.382684, 39.480637], [-0.380967, 39.481221], [-0.380312, 39.481446], [-0.380269, 39.48146], [-0.380192, 39.481321], [-0.380063, 39.481197], [-0.380077, 39.481162], [-0.380007, 39.48115], [-0.379998, 39.481096], [-0.379995, 39.481081], [-0.379957, 39.481046], [-0.379972, 39.48075], [-0.379822, 39.479882]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 521.7, "duration": 173.2, "steps": [{"distance": 2.3, "duration": 1.4, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 18.2, "duration": 10.9, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [1, 4]}, {"distance": 313.4, "duration": 62.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [4, 20]}, {"distance": 38.5, "duration": 11.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [20, 23]}, {"distance": 6.2, "duration": 1.2, "instruction": "Turn left onto Carrer de la Blanqueria", "name": "Carrer de la Blanqueria", "type": 0, "way_points": [23, 24]}, {"distance": 12.8, "duration": 7.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [24, 27]}, {"distance": 130.3, "duration": 78.2, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [27, 29]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at your destination, on the left", "name": "-", "type": 10, "way_points": [29, 29]}]}], "summary": {"distance": 521.7, "duration": 173.2}, "way_points": [0, 29]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3829292797331582, 39.48004223020643], [-0.3797483936090024, 39.479889353348874]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429204800}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_ea3bfa4695e8c58cb7d310e9cc77583c.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+        function geo_json_31720dcbc739c9cee879ab1de100d81e_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "cadetblue", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_31720dcbc739c9cee879ab1de100d81e_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_31720dcbc739c9cee879ab1de100d81e = L.geoJson(null, {
+                onEachFeature: geo_json_31720dcbc739c9cee879ab1de100d81e_onEachFeature,
+            
+                style: geo_json_31720dcbc739c9cee879ab1de100d81e_styler,
+            ...{
+}
+        });
+
+        function geo_json_31720dcbc739c9cee879ab1de100d81e_add (data) {
+            geo_json_31720dcbc739c9cee879ab1de100d81e
+                .addData(data);
+        }
+            geo_json_31720dcbc739c9cee879ab1de100d81e_add({"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "features": [{"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "geometry": {"coordinates": [[-0.379822, 39.479882], [-0.379804, 39.479775], [-0.379857, 39.479776], [-0.379891, 39.479779], [-0.379859, 39.479624], [-0.379878, 39.479607], [-0.380212, 39.479677], [-0.380943, 39.479831], [-0.380937, 39.479849], [-0.380896, 39.479967], [-0.380689, 39.48115], [-0.380673, 39.481222], [-0.38062, 39.481304], [-0.38033, 39.48141], [-0.380269, 39.48146], [-0.380213, 39.481471], [-0.37995, 39.481433], [-0.379532, 39.481341], [-0.379403, 39.481276], [-0.379329, 39.481264], [-0.379167, 39.481272], [-0.379089, 39.481253], [-0.378952, 39.481177], [-0.378866, 39.481039], [-0.378499, 39.480917], [-0.378224, 39.480788], [-0.376302, 39.479693], [-0.376271, 39.479675], [-0.376237, 39.479659], [-0.376044, 39.479629], [-0.375927, 39.479587], [-0.375674, 39.479479], [-0.375654, 39.479476], [-0.375523, 39.479481], [-0.375403, 39.479465], [-0.37518, 39.479351], [-0.374948, 39.479259], [-0.374899, 39.479226], [-0.374871, 39.479193], [-0.374797, 39.479088], [-0.37476, 39.479034], [-0.374688, 39.479], [-0.374646, 39.478984], [-0.374504, 39.478929], [-0.374395, 39.478883], [-0.373364, 39.478448], [-0.373267, 39.478395], [-0.373222, 39.478371], [-0.37319, 39.478352], [-0.371185, 39.477147], [-0.370944, 39.476961], [-0.369864, 39.475919], [-0.369732, 39.475847], [-0.369692, 39.47583], [-0.369511, 39.475796], [-0.369409, 39.475776], [-0.36938, 39.475803], [-0.368203, 39.476931], [-0.36813, 39.476982], [-0.367979, 39.477022], [-0.367897, 39.477024], [-0.367669, 39.476984], [-0.367577, 39.47698], [-0.367452, 39.476973], [-0.367407, 39.47697], [-0.367008, 39.476902], [-0.366828, 39.476853], [-0.366713, 39.476791], [-0.366599, 39.476729], [-0.366498, 39.476725], [-0.366405, 39.476731], [-0.366403, 39.476706], [-0.366374, 39.476642], [-0.366313, 39.476582], [-0.366283, 39.476526], [-0.366225, 39.476433], [-0.366162, 39.476415], [-0.365313, 39.476169], [-0.364833, 39.476031], [-0.364523, 39.475942], [-0.363431, 39.475628], [-0.363267, 39.47558], [-0.363215, 39.475565], [-0.363197, 39.475559], [-0.363148, 39.475548], [-0.363016, 39.475511], [-0.362036, 39.475232], [-0.36196, 39.47521], [-0.361158, 39.47498], [-0.361123, 39.47497], [-0.36089, 39.474903], [-0.3601, 39.474676], [-0.360047, 39.47466], [-0.360017, 39.474651], [-0.359961, 39.474635], [-0.359502, 39.474498], [-0.359469, 39.474469], [-0.35945, 39.474509], [-0.359435, 39.474543], [-0.359392, 39.474628], [-0.359391, 39.474649], [-0.35939, 39.474675], [-0.359372, 39.47474], [-0.358964, 39.47558], [-0.358937, 39.475636], [-0.358909, 39.475693], [-0.358891, 39.47573], [-0.358685, 39.476149], [-0.358665, 39.476189], [-0.358642, 39.476235], [-0.358452, 39.47662], [-0.358439, 39.476647], [-0.358306, 39.47661], [-0.358067, 39.476539], [-0.357461, 39.476363], [-0.357234, 39.476292], [-0.356803, 39.476165], [-0.356745, 39.476276], [-0.356523, 39.47671], [-0.356417, 39.476791], [-0.356343, 39.47685], [-0.356325, 39.476886], [-0.356278, 39.476875], [-0.356242, 39.47685], [-0.356153, 39.476825], [-0.35613, 39.4768], [-0.355972, 39.476751], [-0.355839, 39.476748], [-0.355801, 39.476739], [-0.355632, 39.476693], [-0.355365, 39.476623], [-0.355232, 39.476575], [-0.355131, 39.476542], [-0.355133, 39.47658], [-0.355087, 39.476723], [-0.354763, 39.477382], [-0.354595, 39.47771], [-0.354521, 39.477848], [-0.354455, 39.477977], [-0.354367, 39.477978], [-0.354275, 39.478165], [-0.354302, 39.478213], [-0.354237, 39.478342], [-0.354179, 39.478418], [-0.354095, 39.478637], [-0.354034, 39.478662], [-0.35394, 39.478853], [-0.353961, 39.478907], [-0.353902, 39.479027], [-0.353887, 39.479057], [-0.353826, 39.479078], [-0.35373, 39.479276], [-0.35374, 39.479312], [-0.353683, 39.479427], [-0.353644, 39.479445], [-0.353549, 39.479436], [-0.353534, 39.479471], [-0.353458, 39.479641], [-0.352946, 39.480082], [-0.352789, 39.480217], [-0.352723, 39.48025], [-0.352652, 39.480263], [-0.352611, 39.480302], [-0.352517, 39.480376], [-0.352254, 39.480542], [-0.352105, 39.480624], [-0.352027, 39.480658], [-0.351959, 39.480732], [-0.3517, 39.480883], [-0.351667, 39.480893], [-0.351562, 39.480907], [-0.351421, 39.480893], [-0.351233, 39.480897], [-0.351107, 39.480917], [-0.350874, 39.48099], [-0.350735, 39.481025], [-0.35064, 39.481066], [-0.350497, 39.481083], [-0.350457, 39.48119], [-0.350354, 39.481434], [-0.350302, 39.48154], [-0.350261, 39.481529], [-0.348161, 39.480929], [-0.34804, 39.480891], [-0.347937, 39.480818], [-0.347804, 39.480779], [-0.34768, 39.480786], [-0.347369, 39.480697], [-0.34732, 39.480683], [-0.347223, 39.480656], [-0.34709, 39.480645], [-0.347004, 39.480625], [-0.346933, 39.480603], [-0.346835, 39.480544], [-0.345409, 39.480137], [-0.345388, 39.48013], [-0.345056, 39.480032], [-0.344649, 39.479913], [-0.344128, 39.479762], [-0.34405, 39.479739], [-0.343737, 39.47965], [-0.343713, 39.479643], [-0.343766, 39.479527], [-0.343841, 39.479366], [-0.343873, 39.479297], [-0.343927, 39.479182], [-0.343894, 39.479173], [-0.342275, 39.478708], [-0.342299, 39.478661], [-0.342331, 39.478597]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 4674.3, "duration": 1030.1, "steps": [{"distance": 12.0, "duration": 7.2, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 7.5, "duration": 4.5, "instruction": "Turn right onto Carrer del Museu", "name": "Carrer del Museu", "type": 1, "way_points": [1, 3]}, {"distance": 17.4, "duration": 6.3, "instruction": "Turn sharp left onto Pla\u00e7a de Pere Borrego i Galindo (Faller)", "name": "Pla\u00e7a de Pere Borrego i Galindo (Faller)", "type": 2, "way_points": [3, 4]}, {"distance": 97.3, "duration": 35.0, "instruction": "Turn right onto Carrer de Na Jordana", "name": "Carrer de Na Jordana", "type": 1, "way_points": [4, 7]}, {"distance": 156.6, "duration": 47.0, "instruction": "Turn right onto Carrer de Ll\u00edria", "name": "Carrer de Ll\u00edria", "type": 1, "way_points": [7, 11]}, {"distance": 45.3, "duration": 9.1, "instruction": "Turn slight right onto Carrer de Guillem de Castro", "name": "Carrer de Guillem de Castro", "type": 5, "way_points": [11, 14]}, {"distance": 510.2, "duration": 110.0, "instruction": "Keep right onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 13, "way_points": [14, 35]}, {"distance": 77.4, "duration": 17.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [35, 43]}, {"distance": 539.5, "duration": 107.9, "instruction": "Continue straight onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 6, "way_points": [43, 52]}, {"distance": 28.9, "duration": 5.8, "instruction": "Continue straight", "name": "-", "type": 6, "way_points": [52, 55]}, {"distance": 329.0, "duration": 65.8, "instruction": "Turn left onto Pont del Real", "name": "Pont del Real", "type": 0, "way_points": [55, 70]}, {"distance": 37.1, "duration": 7.4, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [70, 75]}, {"distance": 5.7, "duration": 1.1, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [75, 76]}, {"distance": 614.4, "duration": 122.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [76, 96]}, {"distance": 258.1, "duration": 51.6, "instruction": "Turn sharp left", "name": "-", "type": 2, "way_points": [96, 111]}, {"distance": 150.3, "duration": 45.1, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [111, 116]}, {"distance": 91.5, "duration": 18.3, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [116, 121]}, {"distance": 110.9, "duration": 22.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [121, 132]}, {"distance": 170.1, "duration": 34.0, "instruction": "Turn sharp left onto Avinguda de Catalunya", "name": "Avinguda de Catalunya", "type": 2, "way_points": [132, 138]}, {"distance": 7.5, "duration": 1.5, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [138, 139]}, {"distance": 375.7, "duration": 75.1, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [139, 165]}, {"distance": 118.8, "duration": 23.8, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [165, 174]}, {"distance": 34.3, "duration": 9.0, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [174, 177]}, {"distance": 53.5, "duration": 10.7, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [177, 180]}, {"distance": 606.4, "duration": 121.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [180, 201]}, {"distance": 54.5, "duration": 16.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [201, 205]}, {"distance": 151.2, "duration": 45.4, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [205, 207]}, {"distance": 13.3, "duration": 8.0, "instruction": "Turn right onto Pla\u00e7a de Manuel Broseta i Pont", "name": "Pla\u00e7a de Manuel Broseta i Pont", "type": 1, "way_points": [207, 209]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at Pla\u00e7a de Manuel Broseta i Pont, on the left", "name": "-", "type": 10, "way_points": [209, 209]}]}], "summary": {"distance": 4674.3, "duration": 1030.1}, "way_points": [0, 209]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3797483936090024, 39.479889353348874], [-0.3422752670199095, 39.47858033137406]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429204844}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_31720dcbc739c9cee879ab1de100d81e.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var marker_d61b9df7a3e9db85e6b1fea40bb32846 = L.marker(
+                [39.479889353348874, -0.3797483936090024],
+                {
+}
+            ).addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var beautify_icon_c8812b6bcb5dc66872db94d4dd858bcd = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "RoyalBlue",
+  "textColor": "white",
+  "backgroundColor": "CornflowerBlue",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 2,
+}
+            )
+            marker_d61b9df7a3e9db85e6b1fea40bb32846.setIcon(beautify_icon_c8812b6bcb5dc66872db94d4dd858bcd);
+        
+    
+        var popup_551fb6886fc68acef97e21d85891e94a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_0d1106079cdb42e7505c8a57c6d1e494 = $(`<div id="html_0d1106079cdb42e7505c8a57c6d1e494" style="width: 100.0%; height: 100.0%;">                 <div style="width:400px;">                 <h2>🚴 Bike Change Station 2</h2><br>                 <b>Address:</b> Salvador Giner - C. Museo<br>                 🕒 <b>Real arrival hour:</b> 2025-05-01 08:04<br>                 ⏱ <b>Time:</b> 4.0 min<br>                 🚲 <b>Available bikes at 08:15:</b> 8.0<br>                 🅿️ <b>Available spots at 08:15:</b> 7.0                 </div>                 </div>`)[0];
+                popup_551fb6886fc68acef97e21d85891e94a.setContent(html_0d1106079cdb42e7505c8a57c6d1e494);
+            
+        
+
+        marker_d61b9df7a3e9db85e6b1fea40bb32846.bindPopup(popup_551fb6886fc68acef97e21d85891e94a)
+        ;
+
+        
+    
+    
+            marker_d61b9df7a3e9db85e6b1fea40bb32846.bindTooltip(
+                `<div>
+                     Station 2 / 3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_d61b9df7a3e9db85e6b1fea40bb32846.setIcon(beautify_icon_c8812b6bcb5dc66872db94d4dd858bcd);
+            
+    
+        function geo_json_7281254a933baf6b345b0725266cb1d4_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "mediumseagreen", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_7281254a933baf6b345b0725266cb1d4_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_7281254a933baf6b345b0725266cb1d4 = L.geoJson(null, {
+                onEachFeature: geo_json_7281254a933baf6b345b0725266cb1d4_onEachFeature,
+            
+                style: geo_json_7281254a933baf6b345b0725266cb1d4_styler,
+            ...{
+}
+        });
+
+        function geo_json_7281254a933baf6b345b0725266cb1d4_add (data) {
+            geo_json_7281254a933baf6b345b0725266cb1d4
+                .addData(data);
+        }
+            geo_json_7281254a933baf6b345b0725266cb1d4_add({"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "features": [{"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "geometry": {"coordinates": [[-0.382947, 39.480046], [-0.382954, 39.480026], [-0.383021, 39.480031], [-0.38308, 39.480032], [-0.383166, 39.480033], [-0.383162, 39.480058], [-0.383153, 39.480124], [-0.383151, 39.480155], [-0.383144, 39.480239], [-0.383139, 39.480309], [-0.383131, 39.480328], [-0.383108, 39.480384], [-0.383085, 39.48043], [-0.383059, 39.480459], [-0.38292, 39.480522], [-0.382856, 39.480552], [-0.38278, 39.48059], [-0.382684, 39.480637], [-0.380967, 39.481221], [-0.380312, 39.481446], [-0.380269, 39.48146], [-0.380192, 39.481321], [-0.380063, 39.481197], [-0.380077, 39.481162], [-0.380007, 39.48115], [-0.379998, 39.481096], [-0.379995, 39.481081], [-0.379957, 39.481046], [-0.379972, 39.48075], [-0.379822, 39.479882]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 521.7, "duration": 173.2, "steps": [{"distance": 2.3, "duration": 1.4, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 18.2, "duration": 10.9, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [1, 4]}, {"distance": 313.4, "duration": 62.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [4, 20]}, {"distance": 38.5, "duration": 11.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [20, 23]}, {"distance": 6.2, "duration": 1.2, "instruction": "Turn left onto Carrer de la Blanqueria", "name": "Carrer de la Blanqueria", "type": 0, "way_points": [23, 24]}, {"distance": 12.8, "duration": 7.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [24, 27]}, {"distance": 130.3, "duration": 78.2, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [27, 29]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at your destination, on the left", "name": "-", "type": 10, "way_points": [29, 29]}]}], "summary": {"distance": 521.7, "duration": 173.2}, "way_points": [0, 29]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3829292797331582, 39.48004223020643], [-0.3797483936090024, 39.479889353348874]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429204906}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_7281254a933baf6b345b0725266cb1d4.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+        function geo_json_6027eca279f4d6b266b43bf4e9c9cb30_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "cadetblue", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_6027eca279f4d6b266b43bf4e9c9cb30_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_6027eca279f4d6b266b43bf4e9c9cb30 = L.geoJson(null, {
+                onEachFeature: geo_json_6027eca279f4d6b266b43bf4e9c9cb30_onEachFeature,
+            
+                style: geo_json_6027eca279f4d6b266b43bf4e9c9cb30_styler,
+            ...{
+}
+        });
+
+        function geo_json_6027eca279f4d6b266b43bf4e9c9cb30_add (data) {
+            geo_json_6027eca279f4d6b266b43bf4e9c9cb30
+                .addData(data);
+        }
+            geo_json_6027eca279f4d6b266b43bf4e9c9cb30_add({"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "features": [{"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "geometry": {"coordinates": [[-0.379822, 39.479882], [-0.379804, 39.479775], [-0.379857, 39.479776], [-0.379891, 39.479779], [-0.379859, 39.479624], [-0.379878, 39.479607], [-0.380212, 39.479677], [-0.380943, 39.479831], [-0.380937, 39.479849], [-0.380896, 39.479967], [-0.380689, 39.48115], [-0.380673, 39.481222], [-0.38062, 39.481304], [-0.38033, 39.48141], [-0.380269, 39.48146], [-0.380213, 39.481471], [-0.37995, 39.481433], [-0.379532, 39.481341], [-0.379403, 39.481276], [-0.379329, 39.481264], [-0.379167, 39.481272], [-0.379089, 39.481253], [-0.378952, 39.481177], [-0.378866, 39.481039], [-0.378499, 39.480917], [-0.378224, 39.480788], [-0.376302, 39.479693], [-0.376271, 39.479675], [-0.376237, 39.479659], [-0.376044, 39.479629], [-0.375927, 39.479587], [-0.375674, 39.479479], [-0.375654, 39.479476], [-0.375523, 39.479481], [-0.375403, 39.479465], [-0.37518, 39.479351], [-0.374948, 39.479259], [-0.374899, 39.479226], [-0.374871, 39.479193], [-0.374797, 39.479088], [-0.37476, 39.479034], [-0.374688, 39.479], [-0.374646, 39.478984], [-0.374504, 39.478929], [-0.374395, 39.478883], [-0.373364, 39.478448], [-0.373267, 39.478395], [-0.373222, 39.478371], [-0.37319, 39.478352], [-0.371185, 39.477147], [-0.370944, 39.476961], [-0.369864, 39.475919], [-0.369732, 39.475847], [-0.369692, 39.47583], [-0.369511, 39.475796], [-0.369409, 39.475776], [-0.36938, 39.475803], [-0.368203, 39.476931], [-0.36813, 39.476982], [-0.367979, 39.477022], [-0.367897, 39.477024], [-0.367669, 39.476984], [-0.367577, 39.47698], [-0.367452, 39.476973], [-0.367407, 39.47697], [-0.367008, 39.476902], [-0.366828, 39.476853], [-0.366713, 39.476791], [-0.366599, 39.476729], [-0.366498, 39.476725], [-0.366405, 39.476731], [-0.366403, 39.476706], [-0.366374, 39.476642], [-0.366313, 39.476582], [-0.366283, 39.476526], [-0.366225, 39.476433], [-0.366162, 39.476415], [-0.365313, 39.476169], [-0.364833, 39.476031], [-0.364523, 39.475942], [-0.363431, 39.475628], [-0.363267, 39.47558], [-0.363215, 39.475565], [-0.363197, 39.475559], [-0.363148, 39.475548], [-0.363016, 39.475511], [-0.362036, 39.475232], [-0.36196, 39.47521], [-0.361158, 39.47498], [-0.361123, 39.47497], [-0.36089, 39.474903], [-0.3601, 39.474676], [-0.360047, 39.47466], [-0.360017, 39.474651], [-0.359961, 39.474635], [-0.359502, 39.474498], [-0.359469, 39.474469], [-0.35945, 39.474509], [-0.359435, 39.474543], [-0.359392, 39.474628], [-0.359391, 39.474649], [-0.35939, 39.474675], [-0.359372, 39.47474], [-0.358964, 39.47558], [-0.358937, 39.475636], [-0.358909, 39.475693], [-0.358891, 39.47573], [-0.358685, 39.476149], [-0.358665, 39.476189], [-0.358642, 39.476235], [-0.358452, 39.47662], [-0.358439, 39.476647], [-0.358306, 39.47661], [-0.358067, 39.476539], [-0.357461, 39.476363], [-0.357234, 39.476292], [-0.356803, 39.476165], [-0.356745, 39.476276], [-0.356523, 39.47671], [-0.356417, 39.476791], [-0.356343, 39.47685], [-0.356325, 39.476886], [-0.356278, 39.476875], [-0.356242, 39.47685], [-0.356153, 39.476825], [-0.35613, 39.4768], [-0.355972, 39.476751], [-0.355839, 39.476748], [-0.355801, 39.476739], [-0.355632, 39.476693], [-0.355365, 39.476623], [-0.355232, 39.476575], [-0.355131, 39.476542], [-0.355133, 39.47658], [-0.355087, 39.476723], [-0.354763, 39.477382], [-0.354595, 39.47771], [-0.354521, 39.477848], [-0.354455, 39.477977], [-0.354367, 39.477978], [-0.354275, 39.478165], [-0.354302, 39.478213], [-0.354237, 39.478342], [-0.354179, 39.478418], [-0.354095, 39.478637], [-0.354034, 39.478662], [-0.35394, 39.478853], [-0.353961, 39.478907], [-0.353902, 39.479027], [-0.353887, 39.479057], [-0.353826, 39.479078], [-0.35373, 39.479276], [-0.35374, 39.479312], [-0.353683, 39.479427], [-0.353644, 39.479445], [-0.353549, 39.479436], [-0.353534, 39.479471], [-0.353458, 39.479641], [-0.352946, 39.480082], [-0.352789, 39.480217], [-0.352723, 39.48025], [-0.352652, 39.480263], [-0.352611, 39.480302], [-0.352517, 39.480376], [-0.352254, 39.480542], [-0.352105, 39.480624], [-0.352027, 39.480658], [-0.351959, 39.480732], [-0.3517, 39.480883], [-0.351667, 39.480893], [-0.351562, 39.480907], [-0.351421, 39.480893], [-0.351233, 39.480897], [-0.351107, 39.480917], [-0.350874, 39.48099], [-0.350735, 39.481025], [-0.35064, 39.481066], [-0.350497, 39.481083], [-0.350457, 39.48119], [-0.350354, 39.481434], [-0.350302, 39.48154], [-0.350261, 39.481529], [-0.348161, 39.480929], [-0.34804, 39.480891], [-0.347937, 39.480818], [-0.347804, 39.480779], [-0.34768, 39.480786], [-0.347369, 39.480697], [-0.34732, 39.480683], [-0.347223, 39.480656], [-0.34709, 39.480645], [-0.347004, 39.480625], [-0.346933, 39.480603], [-0.346835, 39.480544], [-0.345409, 39.480137], [-0.345388, 39.48013], [-0.345056, 39.480032], [-0.344649, 39.479913], [-0.344128, 39.479762], [-0.34405, 39.479739], [-0.343737, 39.47965], [-0.343713, 39.479643], [-0.343766, 39.479527], [-0.343841, 39.479366], [-0.343873, 39.479297], [-0.343927, 39.479182], [-0.343894, 39.479173], [-0.342275, 39.478708], [-0.342299, 39.478661], [-0.342331, 39.478597]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 4674.3, "duration": 1030.1, "steps": [{"distance": 12.0, "duration": 7.2, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 7.5, "duration": 4.5, "instruction": "Turn right onto Carrer del Museu", "name": "Carrer del Museu", "type": 1, "way_points": [1, 3]}, {"distance": 17.4, "duration": 6.3, "instruction": "Turn sharp left onto Pla\u00e7a de Pere Borrego i Galindo (Faller)", "name": "Pla\u00e7a de Pere Borrego i Galindo (Faller)", "type": 2, "way_points": [3, 4]}, {"distance": 97.3, "duration": 35.0, "instruction": "Turn right onto Carrer de Na Jordana", "name": "Carrer de Na Jordana", "type": 1, "way_points": [4, 7]}, {"distance": 156.6, "duration": 47.0, "instruction": "Turn right onto Carrer de Ll\u00edria", "name": "Carrer de Ll\u00edria", "type": 1, "way_points": [7, 11]}, {"distance": 45.3, "duration": 9.1, "instruction": "Turn slight right onto Carrer de Guillem de Castro", "name": "Carrer de Guillem de Castro", "type": 5, "way_points": [11, 14]}, {"distance": 510.2, "duration": 110.0, "instruction": "Keep right onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 13, "way_points": [14, 35]}, {"distance": 77.4, "duration": 17.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [35, 43]}, {"distance": 539.5, "duration": 107.9, "instruction": "Continue straight onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 6, "way_points": [43, 52]}, {"distance": 28.9, "duration": 5.8, "instruction": "Continue straight", "name": "-", "type": 6, "way_points": [52, 55]}, {"distance": 329.0, "duration": 65.8, "instruction": "Turn left onto Pont del Real", "name": "Pont del Real", "type": 0, "way_points": [55, 70]}, {"distance": 37.1, "duration": 7.4, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [70, 75]}, {"distance": 5.7, "duration": 1.1, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [75, 76]}, {"distance": 614.4, "duration": 122.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [76, 96]}, {"distance": 258.1, "duration": 51.6, "instruction": "Turn sharp left", "name": "-", "type": 2, "way_points": [96, 111]}, {"distance": 150.3, "duration": 45.1, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [111, 116]}, {"distance": 91.5, "duration": 18.3, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [116, 121]}, {"distance": 110.9, "duration": 22.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [121, 132]}, {"distance": 170.1, "duration": 34.0, "instruction": "Turn sharp left onto Avinguda de Catalunya", "name": "Avinguda de Catalunya", "type": 2, "way_points": [132, 138]}, {"distance": 7.5, "duration": 1.5, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [138, 139]}, {"distance": 375.7, "duration": 75.1, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [139, 165]}, {"distance": 118.8, "duration": 23.8, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [165, 174]}, {"distance": 34.3, "duration": 9.0, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [174, 177]}, {"distance": 53.5, "duration": 10.7, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [177, 180]}, {"distance": 606.4, "duration": 121.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [180, 201]}, {"distance": 54.5, "duration": 16.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [201, 205]}, {"distance": 151.2, "duration": 45.4, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [205, 207]}, {"distance": 13.3, "duration": 8.0, "instruction": "Turn right onto Pla\u00e7a de Manuel Broseta i Pont", "name": "Pla\u00e7a de Manuel Broseta i Pont", "type": 1, "way_points": [207, 209]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at Pla\u00e7a de Manuel Broseta i Pont, on the left", "name": "-", "type": 10, "way_points": [209, 209]}]}], "summary": {"distance": 4674.3, "duration": 1030.1}, "way_points": [0, 209]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3797483936090024, 39.479889353348874], [-0.3422752670199095, 39.47858033137406]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429204950}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_6027eca279f4d6b266b43bf4e9c9cb30.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var marker_3bfd9fbe730bd5ffa936d6ab51319e8e = L.marker(
+                [39.47858033137406, -0.3422752670199095],
+                {
+}
+            ).addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+            var beautify_icon_65b41b59e1a87c118c0814f89fe1deb6 = new L.BeautifyIcon.icon(
+                {
+  "iconShape": "marker",
+  "borderWidth": 3,
+  "borderColor": "teal",
+  "textColor": "white",
+  "backgroundColor": "cadetblue",
+  "innerIconStyle": "",
+  "spin": false,
+  "isAlphaNumericIcon": true,
+  "text": 112,
+}
+            )
+            marker_3bfd9fbe730bd5ffa936d6ab51319e8e.setIcon(beautify_icon_65b41b59e1a87c118c0814f89fe1deb6);
+        
+    
+        var popup_e885049f6fa71d02d0f3492995de5a94 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_17121f6b4d089de7e15b023454d300d0 = $(`<div id="html_17121f6b4d089de7e15b023454d300d0" style="width: 100.0%; height: 100.0%;">                 <div style="width:400px;">                 <h2>🚴 End - Station 112</h2><br>                 <b>Address:</b> Manuel Broseta i Pont - Naranjos<br>                 🕒 <b>Real arrival hour:</b> 2025-05-01 08:21<br>                 ⏱ <b>Time:</b> 21.0 min<br>                 🚲 <b>Available bikes at 08:30:</b> 1.0<br>                 🅿️ <b>Available spots at 08:30:</b> 39.0                 </div>                 </div>`)[0];
+                popup_e885049f6fa71d02d0f3492995de5a94.setContent(html_17121f6b4d089de7e15b023454d300d0);
+            
+        
+
+        marker_3bfd9fbe730bd5ffa936d6ab51319e8e.bindPopup(popup_e885049f6fa71d02d0f3492995de5a94)
+        ;
+
+        
+    
+    
+            marker_3bfd9fbe730bd5ffa936d6ab51319e8e.bindTooltip(
+                `<div>
+                     Station 3 / 3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_3bfd9fbe730bd5ffa936d6ab51319e8e.setIcon(beautify_icon_65b41b59e1a87c118c0814f89fe1deb6);
+            
+    
+        function geo_json_4a0cf762541bf21f749e0d215d2b7413_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "mediumseagreen", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_4a0cf762541bf21f749e0d215d2b7413_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_4a0cf762541bf21f749e0d215d2b7413 = L.geoJson(null, {
+                onEachFeature: geo_json_4a0cf762541bf21f749e0d215d2b7413_onEachFeature,
+            
+                style: geo_json_4a0cf762541bf21f749e0d215d2b7413_styler,
+            ...{
+}
+        });
+
+        function geo_json_4a0cf762541bf21f749e0d215d2b7413_add (data) {
+            geo_json_4a0cf762541bf21f749e0d215d2b7413
+                .addData(data);
+        }
+            geo_json_4a0cf762541bf21f749e0d215d2b7413_add({"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "features": [{"bbox": [-0.383166, 39.479882, -0.379822, 39.48146], "geometry": {"coordinates": [[-0.382947, 39.480046], [-0.382954, 39.480026], [-0.383021, 39.480031], [-0.38308, 39.480032], [-0.383166, 39.480033], [-0.383162, 39.480058], [-0.383153, 39.480124], [-0.383151, 39.480155], [-0.383144, 39.480239], [-0.383139, 39.480309], [-0.383131, 39.480328], [-0.383108, 39.480384], [-0.383085, 39.48043], [-0.383059, 39.480459], [-0.38292, 39.480522], [-0.382856, 39.480552], [-0.38278, 39.48059], [-0.382684, 39.480637], [-0.380967, 39.481221], [-0.380312, 39.481446], [-0.380269, 39.48146], [-0.380192, 39.481321], [-0.380063, 39.481197], [-0.380077, 39.481162], [-0.380007, 39.48115], [-0.379998, 39.481096], [-0.379995, 39.481081], [-0.379957, 39.481046], [-0.379972, 39.48075], [-0.379822, 39.479882]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 521.7, "duration": 173.2, "steps": [{"distance": 2.3, "duration": 1.4, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 18.2, "duration": 10.9, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [1, 4]}, {"distance": 313.4, "duration": 62.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [4, 20]}, {"distance": 38.5, "duration": 11.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [20, 23]}, {"distance": 6.2, "duration": 1.2, "instruction": "Turn left onto Carrer de la Blanqueria", "name": "Carrer de la Blanqueria", "type": 0, "way_points": [23, 24]}, {"distance": 12.8, "duration": 7.7, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [24, 27]}, {"distance": 130.3, "duration": 78.2, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [27, 29]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at your destination, on the left", "name": "-", "type": 10, "way_points": [29, 29]}]}], "summary": {"distance": 521.7, "duration": 173.2}, "way_points": [0, 29]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3829292797331582, 39.48004223020643], [-0.3797483936090024, 39.479889353348874]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429205019}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_4a0cf762541bf21f749e0d215d2b7413.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+    
+        function geo_json_284a3c7f55ddf173b0694fbd238f9974_styler(feature) {
+            switch(feature.id) {
+                default:
+                    return {"color": "cadetblue", "dashArray": "5,5", "opacity": 0.8, "weight": 5};
+            }
+        }
+
+        function geo_json_284a3c7f55ddf173b0694fbd238f9974_onEachFeature(feature, layer) {
+
+            layer.on({
+            });
+        };
+        var geo_json_284a3c7f55ddf173b0694fbd238f9974 = L.geoJson(null, {
+                onEachFeature: geo_json_284a3c7f55ddf173b0694fbd238f9974_onEachFeature,
+            
+                style: geo_json_284a3c7f55ddf173b0694fbd238f9974_styler,
+            ...{
+}
+        });
+
+        function geo_json_284a3c7f55ddf173b0694fbd238f9974_add (data) {
+            geo_json_284a3c7f55ddf173b0694fbd238f9974
+                .addData(data);
+        }
+            geo_json_284a3c7f55ddf173b0694fbd238f9974_add({"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "features": [{"bbox": [-0.380943, 39.474469, -0.342275, 39.48154], "geometry": {"coordinates": [[-0.379822, 39.479882], [-0.379804, 39.479775], [-0.379857, 39.479776], [-0.379891, 39.479779], [-0.379859, 39.479624], [-0.379878, 39.479607], [-0.380212, 39.479677], [-0.380943, 39.479831], [-0.380937, 39.479849], [-0.380896, 39.479967], [-0.380689, 39.48115], [-0.380673, 39.481222], [-0.38062, 39.481304], [-0.38033, 39.48141], [-0.380269, 39.48146], [-0.380213, 39.481471], [-0.37995, 39.481433], [-0.379532, 39.481341], [-0.379403, 39.481276], [-0.379329, 39.481264], [-0.379167, 39.481272], [-0.379089, 39.481253], [-0.378952, 39.481177], [-0.378866, 39.481039], [-0.378499, 39.480917], [-0.378224, 39.480788], [-0.376302, 39.479693], [-0.376271, 39.479675], [-0.376237, 39.479659], [-0.376044, 39.479629], [-0.375927, 39.479587], [-0.375674, 39.479479], [-0.375654, 39.479476], [-0.375523, 39.479481], [-0.375403, 39.479465], [-0.37518, 39.479351], [-0.374948, 39.479259], [-0.374899, 39.479226], [-0.374871, 39.479193], [-0.374797, 39.479088], [-0.37476, 39.479034], [-0.374688, 39.479], [-0.374646, 39.478984], [-0.374504, 39.478929], [-0.374395, 39.478883], [-0.373364, 39.478448], [-0.373267, 39.478395], [-0.373222, 39.478371], [-0.37319, 39.478352], [-0.371185, 39.477147], [-0.370944, 39.476961], [-0.369864, 39.475919], [-0.369732, 39.475847], [-0.369692, 39.47583], [-0.369511, 39.475796], [-0.369409, 39.475776], [-0.36938, 39.475803], [-0.368203, 39.476931], [-0.36813, 39.476982], [-0.367979, 39.477022], [-0.367897, 39.477024], [-0.367669, 39.476984], [-0.367577, 39.47698], [-0.367452, 39.476973], [-0.367407, 39.47697], [-0.367008, 39.476902], [-0.366828, 39.476853], [-0.366713, 39.476791], [-0.366599, 39.476729], [-0.366498, 39.476725], [-0.366405, 39.476731], [-0.366403, 39.476706], [-0.366374, 39.476642], [-0.366313, 39.476582], [-0.366283, 39.476526], [-0.366225, 39.476433], [-0.366162, 39.476415], [-0.365313, 39.476169], [-0.364833, 39.476031], [-0.364523, 39.475942], [-0.363431, 39.475628], [-0.363267, 39.47558], [-0.363215, 39.475565], [-0.363197, 39.475559], [-0.363148, 39.475548], [-0.363016, 39.475511], [-0.362036, 39.475232], [-0.36196, 39.47521], [-0.361158, 39.47498], [-0.361123, 39.47497], [-0.36089, 39.474903], [-0.3601, 39.474676], [-0.360047, 39.47466], [-0.360017, 39.474651], [-0.359961, 39.474635], [-0.359502, 39.474498], [-0.359469, 39.474469], [-0.35945, 39.474509], [-0.359435, 39.474543], [-0.359392, 39.474628], [-0.359391, 39.474649], [-0.35939, 39.474675], [-0.359372, 39.47474], [-0.358964, 39.47558], [-0.358937, 39.475636], [-0.358909, 39.475693], [-0.358891, 39.47573], [-0.358685, 39.476149], [-0.358665, 39.476189], [-0.358642, 39.476235], [-0.358452, 39.47662], [-0.358439, 39.476647], [-0.358306, 39.47661], [-0.358067, 39.476539], [-0.357461, 39.476363], [-0.357234, 39.476292], [-0.356803, 39.476165], [-0.356745, 39.476276], [-0.356523, 39.47671], [-0.356417, 39.476791], [-0.356343, 39.47685], [-0.356325, 39.476886], [-0.356278, 39.476875], [-0.356242, 39.47685], [-0.356153, 39.476825], [-0.35613, 39.4768], [-0.355972, 39.476751], [-0.355839, 39.476748], [-0.355801, 39.476739], [-0.355632, 39.476693], [-0.355365, 39.476623], [-0.355232, 39.476575], [-0.355131, 39.476542], [-0.355133, 39.47658], [-0.355087, 39.476723], [-0.354763, 39.477382], [-0.354595, 39.47771], [-0.354521, 39.477848], [-0.354455, 39.477977], [-0.354367, 39.477978], [-0.354275, 39.478165], [-0.354302, 39.478213], [-0.354237, 39.478342], [-0.354179, 39.478418], [-0.354095, 39.478637], [-0.354034, 39.478662], [-0.35394, 39.478853], [-0.353961, 39.478907], [-0.353902, 39.479027], [-0.353887, 39.479057], [-0.353826, 39.479078], [-0.35373, 39.479276], [-0.35374, 39.479312], [-0.353683, 39.479427], [-0.353644, 39.479445], [-0.353549, 39.479436], [-0.353534, 39.479471], [-0.353458, 39.479641], [-0.352946, 39.480082], [-0.352789, 39.480217], [-0.352723, 39.48025], [-0.352652, 39.480263], [-0.352611, 39.480302], [-0.352517, 39.480376], [-0.352254, 39.480542], [-0.352105, 39.480624], [-0.352027, 39.480658], [-0.351959, 39.480732], [-0.3517, 39.480883], [-0.351667, 39.480893], [-0.351562, 39.480907], [-0.351421, 39.480893], [-0.351233, 39.480897], [-0.351107, 39.480917], [-0.350874, 39.48099], [-0.350735, 39.481025], [-0.35064, 39.481066], [-0.350497, 39.481083], [-0.350457, 39.48119], [-0.350354, 39.481434], [-0.350302, 39.48154], [-0.350261, 39.481529], [-0.348161, 39.480929], [-0.34804, 39.480891], [-0.347937, 39.480818], [-0.347804, 39.480779], [-0.34768, 39.480786], [-0.347369, 39.480697], [-0.34732, 39.480683], [-0.347223, 39.480656], [-0.34709, 39.480645], [-0.347004, 39.480625], [-0.346933, 39.480603], [-0.346835, 39.480544], [-0.345409, 39.480137], [-0.345388, 39.48013], [-0.345056, 39.480032], [-0.344649, 39.479913], [-0.344128, 39.479762], [-0.34405, 39.479739], [-0.343737, 39.47965], [-0.343713, 39.479643], [-0.343766, 39.479527], [-0.343841, 39.479366], [-0.343873, 39.479297], [-0.343927, 39.479182], [-0.343894, 39.479173], [-0.342275, 39.478708], [-0.342299, 39.478661], [-0.342331, 39.478597]], "type": "LineString"}, "id": "0", "properties": {"segments": [{"distance": 4674.3, "duration": 1030.1, "steps": [{"distance": 12.0, "duration": 7.2, "instruction": "Head south", "name": "-", "type": 11, "way_points": [0, 1]}, {"distance": 7.5, "duration": 4.5, "instruction": "Turn right onto Carrer del Museu", "name": "Carrer del Museu", "type": 1, "way_points": [1, 3]}, {"distance": 17.4, "duration": 6.3, "instruction": "Turn sharp left onto Pla\u00e7a de Pere Borrego i Galindo (Faller)", "name": "Pla\u00e7a de Pere Borrego i Galindo (Faller)", "type": 2, "way_points": [3, 4]}, {"distance": 97.3, "duration": 35.0, "instruction": "Turn right onto Carrer de Na Jordana", "name": "Carrer de Na Jordana", "type": 1, "way_points": [4, 7]}, {"distance": 156.6, "duration": 47.0, "instruction": "Turn right onto Carrer de Ll\u00edria", "name": "Carrer de Ll\u00edria", "type": 1, "way_points": [7, 11]}, {"distance": 45.3, "duration": 9.1, "instruction": "Turn slight right onto Carrer de Guillem de Castro", "name": "Carrer de Guillem de Castro", "type": 5, "way_points": [11, 14]}, {"distance": 510.2, "duration": 110.0, "instruction": "Keep right onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 13, "way_points": [14, 35]}, {"distance": 77.4, "duration": 17.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [35, 43]}, {"distance": 539.5, "duration": 107.9, "instruction": "Continue straight onto Carril Bici de la Ronda Interior", "name": "Carril Bici de la Ronda Interior", "type": 6, "way_points": [43, 52]}, {"distance": 28.9, "duration": 5.8, "instruction": "Continue straight", "name": "-", "type": 6, "way_points": [52, 55]}, {"distance": 329.0, "duration": 65.8, "instruction": "Turn left onto Pont del Real", "name": "Pont del Real", "type": 0, "way_points": [55, 70]}, {"distance": 37.1, "duration": 7.4, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [70, 75]}, {"distance": 5.7, "duration": 1.1, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [75, 76]}, {"distance": 614.4, "duration": 122.9, "instruction": "Keep left", "name": "-", "type": 12, "way_points": [76, 96]}, {"distance": 258.1, "duration": 51.6, "instruction": "Turn sharp left", "name": "-", "type": 2, "way_points": [96, 111]}, {"distance": 150.3, "duration": 45.1, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [111, 116]}, {"distance": 91.5, "duration": 18.3, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [116, 121]}, {"distance": 110.9, "duration": 22.2, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [121, 132]}, {"distance": 170.1, "duration": 34.0, "instruction": "Turn sharp left onto Avinguda de Catalunya", "name": "Avinguda de Catalunya", "type": 2, "way_points": [132, 138]}, {"distance": 7.5, "duration": 1.5, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [138, 139]}, {"distance": 375.7, "duration": 75.1, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [139, 165]}, {"distance": 118.8, "duration": 23.8, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [165, 174]}, {"distance": 34.3, "duration": 9.0, "instruction": "Keep right", "name": "-", "type": 13, "way_points": [174, 177]}, {"distance": 53.5, "duration": 10.7, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [177, 180]}, {"distance": 606.4, "duration": 121.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [180, 201]}, {"distance": 54.5, "duration": 16.3, "instruction": "Turn right", "name": "-", "type": 1, "way_points": [201, 205]}, {"distance": 151.2, "duration": 45.4, "instruction": "Turn left", "name": "-", "type": 0, "way_points": [205, 207]}, {"distance": 13.3, "duration": 8.0, "instruction": "Turn right onto Pla\u00e7a de Manuel Broseta i Pont", "name": "Pla\u00e7a de Manuel Broseta i Pont", "type": 1, "way_points": [207, 209]}, {"distance": 0.0, "duration": 0.0, "instruction": "Arrive at Pla\u00e7a de Manuel Broseta i Pont, on the left", "name": "-", "type": 10, "way_points": [209, 209]}]}], "summary": {"distance": 4674.3, "duration": 1030.1}, "way_points": [0, 209]}, "type": "Feature"}], "metadata": {"attribution": "openrouteservice.org | OpenStreetMap contributors", "engine": {"build_date": "2025-05-06T08:31:01Z", "graph_date": "2025-06-03T12:58:59Z", "version": "9.2.0"}, "query": {"coordinates": [[-0.3797483936090024, 39.479889353348874], [-0.3422752670199095, 39.47858033137406]], "format": "geojson", "profile": "cycling-regular", "profileName": "cycling-regular"}, "service": "routing", "timestamp": 1750429205085}, "type": "FeatureCollection"});
+
+        
+    
+            geo_json_284a3c7f55ddf173b0694fbd238f9974.addTo(map_8b25cce5c2d01f784b9b575cf1d4fee2);
+        
+</script>
+</html>
