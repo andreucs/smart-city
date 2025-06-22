@@ -2,11 +2,15 @@ import pandas as pd
 from utils import *
 import os
 from ors_cycling import *
-
 from heapq import heappush, heappop
-from datetime import datetime, timedelta
 
-
+import datetime
+import folium
+import openrouteservice
+from openrouteservice import convert
+from folium.plugins import BeautifyIcon
+import streamlit as st
+@st.cache_data
 def prepare_df():
     """
     1. Load the dataset and distance/duration matrices.
@@ -300,12 +304,6 @@ def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, m
 
     return None,0  # no hay ruta válida
 
-
-import folium
-import openrouteservice
-from openrouteservice import convert
-from folium.plugins import BeautifyIcon
-
 def mapear_ruta(ruta: list, 
                 df_estaciones: 'pd.DataFrame', 
                 info: dict,
@@ -465,6 +463,52 @@ def mapear_ruta(ruta: list,
 
     return m
 
+import pandas as pd
+import folium
+from folium.plugins import BeautifyIcon
+def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> folium.Map:
+    # Asegurarse de que el índice es timestamp para mejorar rendimiento
+    if df.index.name != 'timestamp':
+        df = df.set_index('timestamp')
+        df = df.sort_index()
+
+    # Intentar acceder directamente al timestamp (muy eficiente si hay match exacto)
+    try:
+        filtrado = df.loc[[timestamp_filtro]]
+    except KeyError:
+        raise ValueError(f"No hay datos exactos para {timestamp_filtro}")
+
+    if filtrado.empty:
+        raise ValueError(f"No hay datos para {timestamp_filtro}")
+
+    # Crear el mapa centrado en la media de coordenadas
+    center_lat = filtrado["lat"].mean()
+    center_lon = filtrado["lon"].mean()
+    mapa = folium.Map(location=[center_lat, center_lon], zoom_start=14)
+
+    # Iterar eficientemente
+    for row in filtrado.itertuples():
+        popup_text = f"""
+        <div style="width:300px;">
+        <b>Address:</b> {row.address}<br>
+        🚲 <b>Available bike spaces at {row.Index.strftime('%H:%M')}:</b> {row.available_spaces}<br>
+        🅿️ <b>Predicted bikes available at {row.Index.strftime('%H:%M')}:</b> {round(row.predicted)}
+        </div>
+        """
+        folium.Marker(
+            location=[row.lat, row.lon],
+            popup=popup_text,
+            icon=BeautifyIcon(
+                icon_shape='marker',
+                number=row.id,
+                border_color='cadetblue',
+                background_color='teal',
+                text_color='white'
+            )
+        ).add_to(mapa)
+
+    return mapa
+
 
 
 def main():
@@ -492,8 +536,7 @@ def main():
         return
     
     map_ruta = mapear_ruta(ruta, mayo_merged, info, api_key)
-    map_ruta.save("mapa_ruta.html")
-    log("[OK] Map saved as 'mapa_ruta.html'")
+    log("[OK] Map created")
 
 if __name__ == '__main__':
     main()
