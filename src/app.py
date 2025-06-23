@@ -2,6 +2,7 @@ from st_on_hover_tabs import on_hover_tabs
 import datetime as dt
 import streamlit as st
 from routes import * 
+import os 
 from streamlit_folium import st_folium
 
 
@@ -9,6 +10,9 @@ from streamlit_folium import st_folium
 st.set_page_config(layout="wide")
 # Establecer los límites del calendario: solo mayo 2025
 
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+config = dotenv_values(env_path)
+api_key = config.get("ORS_API_KEY")
 
 st.header("Custom tab component for on-hover navigation bar")
 #st.markdown('<style>' + open('./src/style.css').read() + '</style>', unsafe_allow_html=True)
@@ -71,7 +75,7 @@ elif tabs == 'Map':
         min_value=hora_inicio,
         max_value=hora_fin,
         value=dt.time(8, 0),
-        step=dt.timedelta(minutes=15)
+        step=dt.timedelta(minutes=1)
     )
 
     # Combinar fecha y hora seleccionadas
@@ -83,6 +87,7 @@ elif tabs == 'Map':
     
     if not r:
     # Botón para generar el mapa
+        st.write("Feature deactivated!")
         if st.button("🗺️ Prediction Map Generation"):
             m1 = crear_mapa_estaciones(mayo_merged, timestamp)
             st.session_state["mapa_generado"] = True
@@ -107,11 +112,11 @@ elif tabs == 'Map':
         st.write(f"Route from station {start} to station {end} at {timestamp}:")
         st.write(route)
         st.write(f"Route info: {info}")
-        
+       
 
 
         if st.button("🗺️ Route Map Generation"):
-            m2 = mapear_ruta(route, info, timestamp, mayo_merged)
+            m2 = mapear_ruta(route, mayo_merged, info, api_key)
             st.session_state["mapa_ruta"] = True
             st.session_state["ultimo_timestamp"] = timestamp
         
@@ -119,7 +124,7 @@ elif tabs == 'Map':
         # Mostrar el mapa si fue generado
         if st.session_state.get("mapa_ruta", False):
             # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
-            m2 = mapear_ruta(route, info, st.session_state["ultimo_timestamp"], mayo_merged)
+            m2 = mapear_ruta(route, mayo_merged, info, api_key)
             st_folium(m2, width=725, returned_objects=[])
 
 

@@ -350,8 +350,9 @@ def mapear_ruta(ruta: list,
             c = 'cadetblue' 
             cb = 'teal'       
             label = f"""
-                <div style="width:400px;">
-                <h2>🚴 Start - Station {ruta[i]}</h2><br>
+                <div style="width:400px;
+                font-size:11px;">
+                <h5>🚴 Start - Station {ruta[i]}</h5><br>
                 <b>Address:</b> {ad}<br>
                 🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
                 ⏱ <b>Time:</b> {t_acum:.1f} min<br>
@@ -363,8 +364,9 @@ def mapear_ruta(ruta: list,
             c = 'cadetblue'
             cb = 'teal'  
             label = f"""
-                <div style="width:400px;">
-                <h2>🚴 End - Station {ruta[i]}</h2><br>
+                <div style="width:400px;
+                font-size:11px;">
+                <h5>🚴 End - Station {ruta[i]}</h5><br>
                 <b>Address:</b> {ad}<br>
                 🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
                 ⏱ <b>Time:</b> {t_acum:.1f} min<br>
@@ -377,8 +379,9 @@ def mapear_ruta(ruta: list,
             c = 'CornflowerBlue'
             cb = 'RoyalBlue'
             label = f"""
-                <div style="width:400px;">
-                <h2>🚴 Bike Change Station {ruta[i]}</h2><br>
+                <div style="width:400px;
+                font-size:11px;">
+                <h5>🚴 Bike Station {ruta[i]}</h5><br>
                 <b>Address:</b> {ad}<br>
                 🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
                 ⏱ <b>Time:</b> {t_acum:.1f} min<br>
@@ -411,7 +414,7 @@ def mapear_ruta(ruta: list,
 
             # Tramo inicial: sin bicis
             if est_actual == start and info[est_actual][1] == 0:
-                color = 'mediumseagreen'
+                color = 'yellow'
 
             # Tramo final: sin huecos en penúltima
             if est_actual == last_l and info[est_actual][0] == 0:
@@ -440,20 +443,21 @@ def mapear_ruta(ruta: list,
     <div style="
         position: fixed;
         top: 20px;
-        right: 20px;
-        width: 250px;
+        right: 200px;
+        width: 240px;
         background-color: white;
         border:2px solid grey;
         z-index:9999;
         font-size:11px;
         padding: 10px;
+        color: black;
         box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
         ">
         <i class="fa fa-map-marker fa-2x" style="color:cadetblue"></i> Start or Finish Station<br>
-        <i class="fa fa-map-marker fa-2x" style="color:CornflowerBlue"></i> Bike Change Station <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="cadetblue" stroke-width="3"/></svg> Path Cycling <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="mediumseagreen" stroke-width="3"/></svg> Path Walking <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="salmon" stroke-width="3"/></svg> Path Cycling (search of bike parking) <br>
+        <i class="fa fa-map-marker fa-2x" style="color:CornflowerBlue"></i> Bike Station <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="cadetblue" stroke-width="3"/></svg> Cycling <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="yellow" stroke-width="3"/></svg> Walking <br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="salmon" stroke-width="3"/></svg> Cycling (for parking) <br>
         
     </div>
     '''
@@ -468,12 +472,15 @@ import pandas as pd
 import folium
 from folium.plugins import BeautifyIcon
 def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> folium.Map:
-    # Asegurarse de que el índice es timestamp para mejorar rendimiento
+    # Redondear al siguiente cuarto de hora
+    timestamp_filtro = round_to_next_15min(timestamp_filtro)
+
+    # Asegurarse de que el índice es timestamp
     if df.index.name != 'timestamp':
         df = df.set_index('timestamp')
         df = df.sort_index()
 
-    # Intentar acceder directamente al timestamp (muy eficiente si hay match exacto)
+    # Intentar acceder directamente al timestamp
     try:
         filtrado = df.loc[[timestamp_filtro]]
     except KeyError:
@@ -487,13 +494,13 @@ def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> f
     center_lon = filtrado["lon"].mean()
     mapa = folium.Map(location=[center_lat, center_lon], zoom_start=14)
 
-    # Iterar eficientemente
+    # Añadir marcadores
     for row in filtrado.itertuples():
         popup_text = f"""
         <div style="width:300px;">
         <b>Address:</b> {row.address}<br>
-        🚲 <b>Available bike spaces at {row.Index.strftime('%H:%M')}:</b> {row.available_spaces}<br>
-        🅿️ <b>Predicted bikes available at {row.Index.strftime('%H:%M')}:</b> {round(row.predicted)}
+        🚲 <b>Available bike spaces at {timestamp_filtro.strftime('%H:%M')}:</b> {row.available_spaces}<br>
+        🅿️ <b>Predicted bikes available at {timestamp_filtro.strftime('%H:%M')}:</b> {round(row.predicted)}
         </div>
         """
         folium.Marker(
@@ -513,6 +520,7 @@ def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> f
 
 
 def main():
+    #ejemplo de uso de la función a_star_con_distancia y de mapear_ruta
     T, D, W, P, mayo_merged = prepare_df()
     log("[INFO] Data prepared for routing")
 
