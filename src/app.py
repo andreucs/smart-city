@@ -43,6 +43,10 @@ if tabs =='Home':
     st.write('Name of option is {}'.format(tabs))
 
 elif tabs == 'Map':
+    for key in ["mapa_generado", "mapa_ruta", "ultimo_timestamp"]:
+        if key not in st.session_state:
+            st.session_state[key] = None if "mapa" in key or "timestamp" in key else False
+
     st.title("Map View")
     st.write('Name of option is {}'.format(tabs))
     start_date = dt.date(2025, 5, 1)
@@ -70,31 +74,53 @@ elif tabs == 'Map':
         step=dt.timedelta(minutes=15)
     )
 
-    # Mostrar el resultado seleccionado
-    st.write(f"Has seleccionado: {selected_date}")
-    st.write(f"Hora seleccionada: {hora_seleccionada}")
     # Combinar fecha y hora seleccionadas
     timestamp = dt.datetime.combine(selected_date, hora_seleccionada)
     T, D, W, P, mayo_merged = prepare_df()
     #log(f"[INFO] Data prepared for May 2025: {mayo_merged.shape[0]} rows")
-            
+    r = st.toggle("Route Algorithm")
+
+    
+    if not r:
     # Botón para generar el mapa
-    if st.button("🗺️ Prediction Map Generation"):
-        try:
+        if st.button("🗺️ Prediction Map Generation"):
             m1 = crear_mapa_estaciones(mayo_merged, timestamp)
             st.session_state["mapa_generado"] = True
             st.session_state["ultimo_timestamp"] = timestamp
-        except ValueError as e:
-            st.warning(str(e))
-            st.session_state["mapa_generado"] = False
+        
 
-    # Mostrar el mapa si fue generado
-    if st.session_state.get("mapa_generado", False):
-        # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
-        m1 = crear_mapa_estaciones(mayo_merged, st.session_state["ultimo_timestamp"])
-        st_folium(m1, width=725, returned_objects=[])
+        # Mostrar el mapa si fue generado
+        if st.session_state.get("mapa_generado", False):
+            # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
+            m1 = crear_mapa_estaciones(mayo_merged, st.session_state["ultimo_timestamp"])
+            st_folium(m1, width=725, returned_objects=[])
+    elif r:
+        st.write("Feature activated!")
+        st.write("This is a placeholder for the activated feature.")
+        start = st.text_input("Where do you want to start the bike journey?", value = 1)
+        end = st.text_input("Where do you want to end the bike journey?", value = 2)
+
+        start = int(start) if start.isdigit() else 1
+        end = int(end) if end.isdigit() else 2
+
+        route, info = a_star_con_distancia(start, end, timestamp, T, D, W, P,mayo_merged, max_tiempo=30)
+        st.write(f"Route from station {start} to station {end} at {timestamp}:")
+        st.write(route)
+        st.write(f"Route info: {info}")
+        
 
 
+        if st.button("🗺️ Route Map Generation"):
+            m2 = mapear_ruta(route, info, timestamp, mayo_merged)
+            st.session_state["mapa_ruta"] = True
+            st.session_state["ultimo_timestamp"] = timestamp
+        
+
+        # Mostrar el mapa si fue generado
+        if st.session_state.get("mapa_ruta", False):
+            # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
+            m2 = mapear_ruta(route, info, st.session_state["ultimo_timestamp"], mayo_merged)
+            st_folium(m2, width=725, returned_objects=[])
 
 
 

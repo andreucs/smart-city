@@ -10,6 +10,7 @@ import openrouteservice
 from openrouteservice import convert
 from folium.plugins import BeautifyIcon
 import streamlit as st
+
 @st.cache_data
 def prepare_df():
     """
@@ -98,7 +99,7 @@ def round_to_next_15min(dt):
     # Si no lo es, redondeamos hacia el siguiente múltiplo de 15
     minute = ((dt.minute // 15) + 1) * 15
     if minute == 60:
-        dt += timedelta(hours=1)
+        dt += datetime.timedelta(hours=1)
         minute = 0
     return dt.replace(minute=minute, second=0, microsecond=0)
 
@@ -152,7 +153,7 @@ def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, m
                     if tiempo_a_pie > max_tiempo:
                         continue
 
-                    nueva_hora_salida = salida_datetime + timedelta(minutes=tiempo_a_pie)
+                    nueva_hora_salida = salida_datetime + datetime.timedelta(minutes=tiempo_a_pie)
                     nueva_hora_pred = round_to_next_15min(nueva_hora_salida)
 
                     try:
@@ -229,7 +230,7 @@ def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, m
                     if duracion_extra > max_tiempo:
                         continue
 
-                    llegada_alterna = tiempo_llegada + timedelta(minutes=duracion_extra)
+                    llegada_alterna = tiempo_llegada + datetime.timedelta(minutes=duracion_extra)
                     llegada_alterna_pred = round_to_next_15min(llegada_alterna)
 
                     if P.get((alterna, llegada_alterna_pred), 0) >= 1:
@@ -239,7 +240,7 @@ def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, m
 
                 if alternativa:
                     alterna_id, llegada_pred = alternativa
-                    otra = tiempo_llegada + timedelta(seconds=round(mejor_tiempo * 60))
+                    otra = tiempo_llegada + datetime.timedelta(seconds=round(mejor_tiempo * 60))
                     t_acum = (otra - salida_datetime).total_seconds() / 60
                     #t_acum += mejor_tiempo
                     
@@ -285,7 +286,7 @@ def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, m
             if duracion > max_tiempo: #si el tiempo de duración es mayor que el máximo permitido, lo saltamos
                 continue # saltamos el resto del bucle
 
-            nuevo_tiempo = tiempo_llegada + timedelta(minutes=duracion) # calculamos el nuevo tiempo de llegada para el vecino, usamos timedelta porque la duration matrix está en segundos
+            nuevo_tiempo = tiempo_llegada + datetime.timedelta(minutes=duracion) # calculamos el nuevo tiempo de llegada para el vecino, usamos timedelta porque la duration matrix está en segundos
             nuevo_tiempo_pred = round_to_next_15min(nuevo_tiempo) #redondeamos de nuevo a lbloque de 15 min
             
             if (vecino, nuevo_tiempo_pred) in visited: #comporbamos que no hemos visitado ya el vecino en ese tiempo predicho
