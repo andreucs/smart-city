@@ -497,8 +497,10 @@ def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> f
     # Añadir marcadores
     for row in filtrado.itertuples():
         popup_text = f"""
-        <div style="width:300px;">
-        <b>Address:</b> {row.address}<br>
+        <div style="width:400px;
+        font-size:11px;">
+        <h6>🚴 Station {row.id} .</h6>  <br>
+        <b> Address: </b> {row.address}<br>
         🚲 <b>Available bike spaces at {timestamp_filtro.strftime('%H:%M')}:</b> {row.available_spaces}<br>
         🅿️ <b>Predicted bikes available at {timestamp_filtro.strftime('%H:%M')}:</b> {round(row.predicted)}
         </div>
