@@ -73,7 +73,7 @@ if tabs == "Home":
     """
     st.write(txt)
     st.warning('It is required to have installed the model llama2.3 so that the chat bot can function properly.', icon="⚠️")
-    st.subheader("How to install model llama2.3:", divider="gray")
+    st.subheader("How to install model llama2.3 for :blue-background[MacOS]:", divider="gray")
     st.markdown("""
         1. Open a terminal.
         2. Navigate to the directory where you want to install the model.
@@ -89,9 +89,39 @@ if tabs == "Home":
         brew services stop ollama
         ```
     """)
+    st.subheader("How to install model llama2.3 for :blue-background[Windows]:", divider="gray")
+
+    st.markdown("""
+
+        1. Go to the official Ollama website:  [https://ollama.com/download](https://ollama.com/download)
+        2. Download the installer for Windows and run it as administrator.
+        3. Open PowerShell or Command Prompt and run the following command to download and run the model:
+        ```bash
+        ollama run llama2
+        ```     
+        4. The model **LLaMA2** will be automatically downloaded the first time you run it.
+        5. To stop the model when you're not using it:
+        ```bash
+        ollama stop llama2
+        ```
+    """)
+    st.subheader("How to install model llama2.3 for :blue-background[Linux]:", divider="gray")
+    st.markdown("""
+        1. Open a terminal.
+        2. Install Ollama by running:
+        ```bash
+        curl -fsSL https://ollama.com/install.sh | sh
+        ollama pull llama2
+        ollama run llama2
+        ```
+        3. To stop the model:
+        ```bash
+        ollama stop llama2
+        ```
+    """)
 
     url = "https://ollama.com/library/llama3.2"
-    st.write("For more information about the installation check [link](%s)" % url)
+    st.info("For more information about the installation check [link](%s)" % url)
 
 elif tabs == "Map":
     st.header("ValenBisi Stations Map", divider="gray")
