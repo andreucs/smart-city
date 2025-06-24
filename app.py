@@ -28,7 +28,9 @@ if "chat_history" not in st.session_state:
 
 # Sidebar container for chat
 with st.sidebar:
-    tabs = on_hover_tabs(tabName=['Home', 'Map', 'Chat'], 
+
+    st.divider()
+    tabs = on_hover_tabs(tabName=['Home', 'Map', 'AskValenBisi'], 
                         iconName=['home', 'map', 'code'],
                         styles = {'navtab': {'background-color':'#111',
                                             'color': '#818181',
@@ -45,8 +47,19 @@ with st.sidebar:
                                             'left':'7.5px',
                                             'text-align': 'left'},
                                 },
+                        default_choice=0,
                         key="1")
-        
+    st.divider()
+    st.markdown(
+    """
+    <span style='color: #818181; font-weight:'>
+    Built by:<br>
+    - A-squared
+    </span>
+    """,
+    unsafe_allow_html=True
+)
+
 # with st.sidebar:
 #     tabs = on_hover_tabs(tabName=['Dashboard', 'Money', 'Economy'], 
 #                          iconName=['dashboard', 'money', 'economy'], default_choice=0)
@@ -86,6 +99,8 @@ elif tabs == "Map":
         In this section, you can explore ValenBisi stations along with :gray-background[predicted availability] for a selected date and time in **May 2025**.
         Use the slider to choose the time of day and the calendar to select the specific date. Finally click the button to generate the map with the stations and their predicted availability.
         Additionally, you can plan :gray-background[routes] by selecting start and end stations and enabling the route algorithm option.
+
+        REMEMBER: when chanching the date or time, you must click the button to generate the map again.
     """
     st.write(txt)
     for key in ["mapa_generado", "mapa_ruta", "ultimo_timestamp"]:
@@ -128,6 +143,7 @@ elif tabs == "Map":
 
         with left:
         # Botón para generar el mapa
+            
             if st.button("🗺️ All Station Generation"):
                 m1 = crear_mapa_estaciones(mayo_merged, timestamp)
                 st.session_state["mapa_generado"] = True
@@ -149,6 +165,8 @@ elif tabs == "Map":
                 end = int(end) if end.isdigit() else 2
                 if start in [168, 105, 146]:
                     st.warning("The start station is not available for routes. Please choose another station.", icon="⚠️")
+                if end in [168, 105, 146]:
+                    st.warning("The end station is not available for routes. Please choose another station.", icon="⚠️")
 
                 route, info = a_star_con_distancia(start, end, timestamp, T, D, W, P,mayo_merged, max_tiempo=30)
                 st.write(f":blue-background[Route from station {start} to station {end}:]")
@@ -184,12 +202,7 @@ elif tabs == "Map":
         # st.write(info)
         # st.write(route)
 
-
-  
-
-    
-
-elif tabs == "Chat":
+elif tabs == "AskValenBisi":
     col1, col2 = st.columns([5,1])  # Adjust column ratios as needed
 
     with col1:
