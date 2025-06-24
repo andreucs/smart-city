@@ -443,7 +443,7 @@ def mapear_ruta(ruta: list,
     <div style="
         position: fixed;
         top: 20px;
-        right: 200px;
+        right: 50px;
         width: 240px;
         background-color: white;
         border:2px solid grey;

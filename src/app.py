@@ -116,7 +116,7 @@ if not r:
     if st.session_state.get("mapa_generado", False):
         # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
         m1 = crear_mapa_estaciones(mayo_merged, st.session_state["ultimo_timestamp"])
-        st_folium(m1, width=725, returned_objects=[])
+        st_folium(m1, width=1250, returned_objects=[])
 elif r:
     start = st.text_input("Where do you want to start the bike journey?", value = 1)
     end = st.text_input("Where do you want to end the bike journey?", value = 2)
@@ -144,7 +144,7 @@ elif r:
     if st.session_state.get("mapa_ruta", False):
         # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
         m2 = mapear_ruta(route, mayo_merged, info, api_key)
-        st_folium(m2, width=725, returned_objects=[])
+        st_folium(m2, width=1250, returned_objects=[])
 
 
 
