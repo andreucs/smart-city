@@ -420,11 +420,15 @@ def mapear_ruta(ruta: list,
             if est_actual == last_l and info[est_actual][0] == 0:
                 color = 'salmon'
 
-            segmento = client.directions(
-                coordinates=[coords[i], coords[i + 1]],
-                profile='cycling-regular',
-                format='geojson'
-            )
+            try:
+                segmento = client.directions(
+                    coordinates=[coords[i], coords[i + 1]],
+                    profile='cycling-regular',
+                    format='geojson'
+                )
+            except Exception as e:
+                st.warning(f"The API key has expired or is invalid.", icon="⚠️")
+                return None  # Salir de la función inmediatamente
 
             
 
@@ -443,7 +447,7 @@ def mapear_ruta(ruta: list,
     <div style="
         position: fixed;
         top: 20px;
-        right: 50px;
+        right: 200px;
         width: 240px;
         background-color: white;
         border:2px solid grey;
