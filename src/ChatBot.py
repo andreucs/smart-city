@@ -7,10 +7,10 @@ from datetime import datetime
 import nest_asyncio
 import torch
 import faiss
-import src.config as config
+import src.config as config #este tenia src.config
 
 from langchain_huggingface import HuggingFaceEmbeddings
-from src.vectorstore_builder import connect_faiss
+from src.vectorstore_builder import connect_faiss #este tenia src.vectorstore_builder
 from langchain_ollama import ChatOllama
 from langchain.prompts import PromptTemplate
 from langchain.chains.combine_documents import create_stuff_documents_chain

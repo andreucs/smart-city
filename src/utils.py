@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import calendar
 from typing import List
-import config
+import src.config
 import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import math
