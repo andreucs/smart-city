@@ -29,4 +29,5 @@ dependencies = [
     "streamlit-folium>=0.25.0",
     "streamlit-on-hover-tabs>=1.0.1",
     "torch>=2.7.1",
+    "tqdm>=4.67.1",
 ]

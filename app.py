@@ -17,7 +17,7 @@ st.set_page_config(layout="wide")
 
 env_path = os.path.join(os.path.dirname(__file__), "src/.env")
 config = dotenv_values(env_path)
-api_key = config.get("ORS_API_KEY")
+api_key = st.secrets['ORS_API_KEY']
 
 # st.header("Custom tab component for on-hover navigation bar")
 st.markdown('<style>' + open('./src/style.css').read() + '</style>', unsafe_allow_html=True)
