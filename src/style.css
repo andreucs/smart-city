@@ -39,6 +39,11 @@ section[data-testid='stSidebar'] {
         display: none;
     }
 
+    section[data-testid='stSidebar'] [data-testid="stLogo"] {
+    display: none !important;
+}
+
+
 }
 
 @media(hover: hover) and (min-width: 769px){
@@ -46,6 +51,14 @@ section[data-testid='stSidebar'] {
     header[data-testid="stHeader"] {
         display:none;
     }
+
+    header [data-testid="stLogo"] {
+    display: none !important;
+}
+
+    section[data-testid='stSidebar'] [data-testid="stLogo"] {
+    display: none !important;
+}
 
     section[data-testid='stSidebar'] {
         height: 100%;

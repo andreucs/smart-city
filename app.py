@@ -12,15 +12,17 @@ import torch
 # import src.config as config
 
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    layout="wide"
+)
 # Establecer los límites del calendario: solo mayo 2025
-
+st.logo('figures/logo-contract.png')
 env_path = os.path.join(os.path.dirname(__file__), "src/.env")
 config = dotenv_values(env_path)
 api_key = st.secrets['ORS_API_KEY']
 
 # st.header("Custom tab component for on-hover navigation bar")
-st.markdown('<style>' + open('./src/style.css').read() + '</style>', unsafe_allow_html=True)
+st.markdown('<style>' + open('src/style.css').read() + '</style>', unsafe_allow_html=True)
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
@@ -28,7 +30,7 @@ if "chat_history" not in st.session_state:
 
 # Sidebar container for chat
 with st.sidebar:
-
+    
     st.divider()
     tabs = on_hover_tabs(tabName=['Home', 'Map', 'AskValenBisi'], 
                         iconName=['home', 'map', 'code'],
@@ -48,21 +50,20 @@ with st.sidebar:
                                             'text-align': 'left'},
                                 },
                         default_choice=0,
+                        
                         key="1")
     st.divider()
     st.markdown(
     """
     <span style='color: #818181; font-weight:'>
-    Built by:<br>
-    - A-squared
+    Built by A-squared:<br>
+    - Andreu Bonet Pavia <br>
+    - Anna Gil Moliner
+ 
     </span>
     """,
     unsafe_allow_html=True
 )
-
-# with st.sidebar:
-#     tabs = on_hover_tabs(tabName=['Dashboard', 'Money', 'Economy'], 
-#                          iconName=['dashboard', 'money', 'economy'], default_choice=0)
 
 if tabs == "Home":
     st.header("Welcome to the ValenBisi Route App", divider="gray")
@@ -72,6 +73,9 @@ if tabs == "Home":
 
     """
     st.write(txt)
+    st.image('figures/valenbici_bici.jpeg')
+
+
     st.warning('It is required to have installed the model llama3.2 so that the chat bot can function properly.', icon="⚠️")
     st.subheader("How to install model llama3.2 for :blue-background[MacOS]:", divider="gray")
     st.markdown("""
