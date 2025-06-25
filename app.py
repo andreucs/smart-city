@@ -72,8 +72,8 @@ if tabs == "Home":
 
     """
     st.write(txt)
-    st.warning('It is required to have installed the model llama2.3 so that the chat bot can function properly.', icon="⚠️")
-    st.subheader("How to install model llama2.3 for :blue-background[MacOS]:", divider="gray")
+    st.warning('It is required to have installed the model llama3.2 so that the chat bot can function properly.', icon="⚠️")
+    st.subheader("How to install model llama3.2 for :blue-background[MacOS]:", divider="gray")
     st.markdown("""
         1. Open a terminal.
         2. Navigate to the directory where you want to install the model.
@@ -81,7 +81,7 @@ if tabs == "Home":
         ```bash
         brew install ollama
         brew services start ollama
-        ollama pull llama2
+        ollama pull llama3.2
         ```
         4. After installation, you can use the model in your Python scripts.
         5. If you want to stop the Ollama service, you can run:
@@ -89,7 +89,7 @@ if tabs == "Home":
         brew services stop ollama
         ```
     """)
-    st.subheader("How to install model llama2.3 for :blue-background[Windows]:", divider="gray")
+    st.subheader("How to install model llama3.2 for :blue-background[Windows]:", divider="gray")
 
     st.markdown("""
 
@@ -97,26 +97,26 @@ if tabs == "Home":
         2. Download the installer for Windows and run it as administrator.
         3. Open PowerShell or Command Prompt and run the following command to download and run the model:
         ```bash
-        ollama run llama2
+        ollama run llama3.2
         ```     
-        4. The model **LLaMA2** will be automatically downloaded the first time you run it.
+        4. The model **LLaMA3.2** will be automatically downloaded the first time you run it.
         5. To stop the model when you're not using it:
         ```bash
-        ollama stop llama2
+        ollama stop llama3.2
         ```
     """)
-    st.subheader("How to install model llama2.3 for :blue-background[Linux]:", divider="gray")
+    st.subheader("How to install model llama3.2 for :blue-background[Linux]:", divider="gray")
     st.markdown("""
         1. Open a terminal.
         2. Install Ollama by running:
         ```bash
         curl -fsSL https://ollama.com/install.sh | sh
-        ollama pull llama2
-        ollama run llama2
+        ollama pull llama3.2
+        ollama run llama3.2
         ```
         3. To stop the model:
         ```bash
-        ollama stop llama2
+        ollama stop llama3.2
         ```
     """)
 
