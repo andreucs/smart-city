@@ -240,7 +240,7 @@ def a_star_distance(start, goal, departure_datetime, T, D,W, P,mayo_merged, max_
                 continue
 
             # Heuristic: distance between neighbor and goal
-            h = D.get(neighbor, {}).get(goal, float('inf'))
+            h = T.get(neighbor, {}).get(goal, float('inf')) / 60  
             g = (new_arrival_time - departure_datetime).total_seconds() / 60
             f_score = g + h
 
