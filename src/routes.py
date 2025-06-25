@@ -1,7 +1,7 @@
 import pandas as pd
-from src.utils import *
+from src.utils import * #este
 import os
-from src.ors_cycling import *
+from src.ors_cycling import * #este
 from heapq import heappush, heappop
 
 import datetime
@@ -36,22 +36,20 @@ def prepare_df():
     times.set_index('id', inplace=True)
     times_w.set_index('id', inplace=True)
 
-    # Conversión a diccionario de diccionarios
-    D = distances.to_dict(orient='index') #diccionario de distancias
-    # Convertimos todas las claves internas a int
+    D = distances.to_dict(orient='index') 
     D = {
         ext_k: {int(inner_k): v for inner_k, v in inner_dict.items()}
         for ext_k, inner_dict in D.items()
     }
 
 
-    T = times.to_dict(orient='index') #diccionario de tiempos
+    T = times.to_dict(orient='index') 
     T = {
         ext_k: {int(inner_k): v for inner_k, v in inner_dict.items()}
         for ext_k, inner_dict in T.items()
     }
 
-    W = times_w.to_dict(orient='index') #diccionario de tiempos
+    W = times_w.to_dict(orient='index') 
     W = {
         ext_k: {int(inner_k): v for inner_k, v in inner_dict.items()}
         for ext_k, inner_dict in W.items()
@@ -70,7 +68,6 @@ def prepare_df():
     
 
     # Load the retrained model
-    # model_path = os.path.join('model', 'retrained_model.pkl')
     model = joblib.load(f"./model/retrained_model.pkl")
 
     # Prepare features and run inference
@@ -92,357 +89,317 @@ def prepare_df():
 
 
 def round_to_next_15min(dt):
-    # Si ya es múltiplo de 15, no redondeamos
     if dt.minute % 15 == 0 and dt.second == 0 and dt.microsecond == 0:
         return dt.replace(second=0, microsecond=0)
     
-    # Si no lo es, redondeamos hacia el siguiente múltiplo de 15
     minute = ((dt.minute // 15) + 1) * 15
     if minute == 60:
         dt += datetime.timedelta(hours=1)
         minute = 0
     return dt.replace(minute=minute, second=0, microsecond=0)
 
+from heapq import heappush, heappop
+from datetime import datetime, timedelta
 
-def a_star_con_distancia(start, goal, salida_datetime, T, D, W, P,mayo_merged, max_tiempo=30):
-    
+def round_to_next_15min(dt):
+    # If the time is already a multiple of 15 minutes, return it as is
+    if dt.minute % 15 == 0 and dt.second == 0 and dt.microsecond == 0:
+        return dt.replace(second=0, microsecond=0)
+
+    # Otherwise, round up to the next multiple of 15
+    minute = ((dt.minute // 15) + 1) * 15
+    if minute == 60:
+        dt += timedelta(hours=1)
+        minute = 0
+    return dt.replace(minute=minute, second=0, microsecond=0)
+
+
+def a_star_distance(start, goal, departure_datetime, T, D,W, P,mayo_merged, max_duration=30):
     if start not in T or goal not in T:
-        # log (f"🚫 Estación {start} o {goal} no está en los datos de tiempos en bici (T)")
-        return None,{}
-    if (start not in D) or (goal not in D):
-        # log (f"🚫 Estación {start} o {goal} no está en los datos de distancias (D)")
-        return None,{}
-    if (start not in W) or (goal not in W):
-        # log (f"🚫 Estación {start} o {goal} no está en los datos de tiempos andando(W)")
-        return None,{}
-    
-    # if not any(k[0] == start for k in P.keys()) or not any(k[0] == goal for k in P.keys()):
-    #     raise ValueError(f"🚫 No hay predicciones disponibles para start o goal")
+        return None, {}
+    if start not in D or goal not in D:
+        return None, {}
+    if start not in W or goal not in W:
+        return None, {}
+
     open_set = []
-    heappush(open_set, (0, start, salida_datetime, [start]))
+    heappush(open_set, (0, start, departure_datetime, [start]))
     visited = set()
+    best_initial_time = 0  # Accumulated time at start
     info = {}
-    
-    
+
     while open_set:
-        #sacamos el nodo con manor f (sería como la cota que calculamos)
-        f, actual, tiempo_llegada, camino = heappop(open_set)
+        # Extract the node with the lowest f-score (estimated cost)
+        f, current, arrival_time, path = heappop(open_set)
 
-        # redondeamos el tiempo de llegada al siguiente múltiplo de 15 minutos
-        tiempo_pred = round_to_next_15min(tiempo_llegada)
+        # Round arrival time to the next 15-minute slot
+        prediction_time = round_to_next_15min(arrival_time)
 
-        
-        if actual == start:
+        if current == start:
             try:
-                total = mayo_merged.loc[mayo_merged['id'] == start, 'total_spaces'].values[0]
+                total_docks = mayo_merged.loc[mayo_merged['id'] == start, 'total_spaces'].values[0]
             except IndexError:
-                # log(f"🚫 Estación {start} no está en el DataFrame.")
-                return None,{}
+                log(f"🚫 Station {start} not found in the DataFrame.")
+                return None, {}
 
-            huecos = P.get((start, tiempo_pred), 0)
-            bicis = total - huecos
+            free_docks = P.get((start, prediction_time), 0)
+            available_bikes = total_docks - free_docks
 
-            if bicis < 1:
-                # log(f"🚫 No hay bicicletas en {start} a las {tiempo_pred}. Buscando estación alternativa andando...")
+            if available_bikes < 1:
+                log(f"🚫 No bikes at {start} at {prediction_time}. Searching for nearby walking alternative...")
 
-                alternativa = None
-                mejor_tiempo = float('inf')
+                alternative = None
+                best_walk_time = float('inf')
 
-                for alterna in W.get(start, {}):  # W = matriz de tiempos andando
-                    tiempo_a_pie = round(W[start][alterna] / 60)  # segundos a minutos
-                    if tiempo_a_pie > max_tiempo:
+                for alt in W.get(start, {}):  # W = walking time matrix
+                    walk_time = round(W[start][alt] / 60)  # convert seconds to minutes
+                    if walk_time > max_duration:
                         continue
 
-                    nueva_hora_salida = salida_datetime + datetime.timedelta(minutes=tiempo_a_pie)
-                    nueva_hora_pred = round_to_next_15min(nueva_hora_salida)
+                    new_departure = departure_datetime + timedelta(minutes=walk_time)
+                    new_pred_time = round_to_next_15min(new_departure)
 
                     try:
-                        total_alt = mayo_merged.loc[mayo_merged['id'] == alterna, 'total_spaces'].values[0]
+                        total_alt_docks = mayo_merged.loc[mayo_merged['id'] == alt, 'total_spaces'].values[0]
                     except IndexError:
                         continue
 
-                    huecos_alt = P.get((alterna, nueva_hora_pred), 0)
-                    bicis_alt = total_alt - huecos_alt
+                    alt_free_docks = P.get((alt, new_pred_time), 0)
+                    alt_available_bikes = total_alt_docks - alt_free_docks
 
-                    if bicis_alt > 0 and tiempo_a_pie < mejor_tiempo:
-                        mejor_tiempo = tiempo_a_pie
-                        alternativa = (alterna, nueva_hora_salida, nueva_hora_pred)
+                    if alt_available_bikes > 0 and walk_time < best_walk_time:
+                        best_walk_time = walk_time
+                        alternative = (alt, new_departure, new_pred_time)
 
-                if alternativa:
-                    alt_id, alt_salida, alt_pred = alternativa
-                    # log(f"✅ Nueva estación alternativa para salir: {alt_id}")
-                    # log(f"   🚶 Tiempo andando desde {start}: {mejor_tiempo:.1f} min")
-                    # log(f"   🕒 Hora de salida estimada desde alternativa: {alt_pred}")
-                    t_mejor_ini = mejor_tiempo
-                    huecos_disp = P.get((start, tiempo_pred), 0)
-                    info[start] = [
-                        huecos,
-                        bicis,
-                        t_mejor_ini,
-                        salida_datetime,
-                        alt_pred
-                    ]
+                if alternative:
+                    alt_id, alt_departure, alt_pred_time = alternative
+            
+                    best_initial_time = best_walk_time
+                    info[start] = [free_docks, available_bikes, best_initial_time, departure_datetime, alt_pred_time]
 
-                    heappush(open_set, (0, alt_id, alt_salida, [start, alt_id]))
+                    heappush(open_set, (0, alt_id, alt_departure, [start, alt_id]))
                     continue
                 else:
-                    # log("❌ No hay estaciones caminando cercanas con bicis disponibles.")
-                    return None,{}
+                    log("❌ No nearby walking station with available bikes.")
+                    return None, {}
 
             else:
-                log(f"🚴 Estación inicial: {start} (total: {total}, bicis: {bicis}, huecos: {huecos})")
-        
+                log(f"🚴 Starting station: {start} (total: {total_docks}, bikes: {available_bikes}, free docks: {free_docks})")
+
         start = int(start)
         goal = int(goal)
 
-        t_acum = (tiempo_llegada - salida_datetime).total_seconds() / 60 # tiempo acumulado en minutos
+        accumulated_time = (arrival_time - departure_datetime).total_seconds() / 60  # minutes
 
-        huecos_disp = P.get((actual, tiempo_pred), 0)
-        total = mayo_merged.loc[mayo_merged['id'] == actual, 'total_spaces'].values[0]
-        b = total - huecos_disp
+        free_docks = P.get((current, prediction_time), 0)
+        total_docks = mayo_merged.loc[mayo_merged['id'] == current, 'total_spaces'].values[0]
+        available_bikes = total_docks - free_docks
 
-        info[actual] = [
-            huecos_disp,
-            b,
-            t_acum,
-            tiempo_llegada,
-            tiempo_pred
-        ]
-          
-        # log(f"\n🚴 Visitando: {actual}")
-        # log(f"  ⏱ Llegada real: {tiempo_llegada} → redondeado a: {tiempo_pred}")
-        # log(f"  📦 Huecos disponibles: {P.get((actual, tiempo_pred), 0)}")
-        # log(f"  🧭 Ruta parcial: {camino}")
-        # log(f"  ⏳ Tiempo acumulado: {t_acum } min")
-        if actual == goal:
+        info[current] = [free_docks, available_bikes, accumulated_time, arrival_time, prediction_time]
 
-            if P.get((goal, tiempo_pred), 0) >= 1:
-                return camino, info
-
+        if current == goal:
+            if P.get((goal, prediction_time), 0) >= 1:
+                return path, info
             else:
-                # log(f"[INFO] ❌ Estación destino {goal} sin huecos en {tiempo_pred}. Buscando única alternativa...")
+                log(f"❌ Destination {goal} has no docks at {prediction_time}. Searching for nearby alternatives...")
 
-                alternativa = None
-                mejor_tiempo = float('inf')
+                alternative = None
+                best_extra_time = float('inf')
 
-                for alterna in T.get(goal, {}):
-                    duracion_extra = T[goal][alterna] / 60  # convertir a minutos
-                    if duracion_extra > max_tiempo:
+                for alt in T.get(goal, {}):
+                    extra_duration = T[goal][alt] / 60
+                    if extra_duration > max_duration:
                         continue
 
-                    llegada_alterna = tiempo_llegada + datetime.timedelta(minutes=duracion_extra)
-                    llegada_alterna_pred = round_to_next_15min(llegada_alterna)
+                    alt_arrival = arrival_time + timedelta(minutes=extra_duration)
+                    alt_arrival_pred = round_to_next_15min(alt_arrival)
 
-                    if P.get((alterna, llegada_alterna_pred), 0) >= 1:
-                        if duracion_extra < mejor_tiempo:
-                            mejor_tiempo = duracion_extra
-                            alternativa = (alterna, llegada_alterna_pred)
+                    if P.get((alt, alt_arrival_pred), 0) >= 1:
+                        if extra_duration < best_extra_time:
+                            best_extra_time = extra_duration
+                            alternative = (alt, alt_arrival_pred)
 
-                if alternativa:
-                    alterna_id, llegada_pred = alternativa
-                    otra = tiempo_llegada + datetime.timedelta(seconds=round(mejor_tiempo * 60))
-                    t_acum = (otra - salida_datetime).total_seconds() / 60
-                    #t_acum += mejor_tiempo
-                    
-                    
-                    # log(f"✅ Usamos alternativa final: {alterna_id}")
-                    # log(f"   ⏱ Tiempo adicional desde {goal}: {mejor_tiempo:.1f} min")
-                    # log(f"   🧭 Llegada real: {otra} → redondeado a: {llegada_pred}")
-                    # log(f"   ⌛ Tiempo total desde inicio: {t_acum:.1f} min")
-                    huecos_disp = P.get((alterna_id, tiempo_pred), 0)
-                    total = mayo_merged.loc[mayo_merged['id'] == alterna_id, 'total_spaces'].values[0]
-                    b = total - huecos_disp
-                    info[alterna_id] = [
-                        huecos_disp,
-                        b,
-                        t_acum,
-                        otra,
-                        llegada_pred
-                    ]
+                if alternative:
+                    alt_id, arrival_pred = alternative
+                    final_arrival = arrival_time + timedelta(seconds=round(best_extra_time * 60))
+                    accumulated_time = (final_arrival - departure_datetime).total_seconds() / 60
 
-                    return camino + [alterna_id], info # ✅ finalizamos aquí, no exploramos más
+                    free_docks = P.get((alt_id, prediction_time), 0)
+                    total_docks = mayo_merged.loc[mayo_merged['id'] == alt_id, 'total_spaces'].values[0]
+                    available_bikes = total_docks - free_docks
+                    info[alt_id] = [free_docks, available_bikes, accumulated_time, final_arrival, arrival_pred]
 
-
+                    return path + [alt_id], info  # ✅ End here
 
                 else:
-                    # log(f"❌ No se encontró alternativa con hueco para aparcar")
-                    return None,{}
+                    log(f"❌ No nearby alternative found with available docks")
+                    return None, {}
 
-                
-        # Si no es el destino, añadimos la estación actual al conjunto de visitados
-        if actual != start and P.get((actual, tiempo_pred), 0) < 1 and actual != goal:
+        if current != start and P.get((current, prediction_time), 0) < 1 and current != goal:
             continue
-        
 
-        visited.add((actual, tiempo_pred)) #añadimos la estacion que acabamos de visitar y el tiempo predicho de llegada
-        #log(f"Open set size: {len(open_set)}")  # Debugging line to check open_set size
-        #log(f"Visited size: {len(visited)}")  # Debugging line to check visited size
-        
-        for vecino in T.get(actual, {}): #buscamos los vecinos de la estacion actual
-             # Debugging line to check neighbors
-            duracion = T[actual][vecino] #nos quedamos con el tiempo desde la estacion actual al vecino
-            duracion = round(duracion / 60)  # Convertimos a minutos
-            #log(f"Checking neighbor: {vecino}, duration: {duracion} minutes")  # Debugging line to check neighbor and duration
-            if duracion > max_tiempo: #si el tiempo de duración es mayor que el máximo permitido, lo saltamos
-                continue # saltamos el resto del bucle
+        visited.add((current, prediction_time))  # Mark current station and time as visited
 
-            nuevo_tiempo = tiempo_llegada + datetime.timedelta(minutes=duracion) # calculamos el nuevo tiempo de llegada para el vecino, usamos timedelta porque la duration matrix está en segundos
-            nuevo_tiempo_pred = round_to_next_15min(nuevo_tiempo) #redondeamos de nuevo a lbloque de 15 min
-            
-            if (vecino, nuevo_tiempo_pred) in visited: #comporbamos que no hemos visitado ya el vecino en ese tiempo predicho
+        for neighbor in T.get(current, {}):
+            duration = T[current][neighbor]
+            duration = round(duration / 60)  # Convert to minutes
+            if duration > max_duration:
                 continue
 
-            if vecino != goal and P.get((vecino, nuevo_tiempo_pred), 0) < 1:
+            new_arrival_time = arrival_time + timedelta(minutes=duration)
+            new_pred_time = round_to_next_15min(new_arrival_time)
+
+            if (neighbor, new_pred_time) in visited:
                 continue
 
-            # Heurística: distancia desde vecino al destino, que sería la cota optimista que usamos 
-            h = D.get(vecino, {}).get(goal, float('inf'))  # km entre vecino y destino
-            g = (nuevo_tiempo - salida_datetime).total_seconds() / 60  # tiempo acumulado en minutos
-            f_score = g + h  # puedes ponderar h si quieres convertir a tiempo estimado
+            if neighbor != goal and P.get((neighbor, new_pred_time), 0) < 1:
+                continue
 
-            heappush(open_set, (f_score, vecino, nuevo_tiempo, camino + [vecino]))
-        
+            # Heuristic: distance between neighbor and goal
+            h = D.get(neighbor, {}).get(goal, float('inf'))
+            g = (new_arrival_time - departure_datetime).total_seconds() / 60
+            f_score = g + h
 
-    return None,0  # no hay ruta válida
+            heappush(open_set, (f_score, neighbor, new_arrival_time, path + [neighbor]))
 
-def mapear_ruta(ruta: list, 
-                df_estaciones: 'pd.DataFrame', 
-                info: dict,
-                api_key: str) -> folium.Map:
+    return None, 0  # No valid route found
+
+def map_route(
+    route: list,
+    stations_df: 'pd.DataFrame',
+    station_info: dict,
+    api_key: str
+) -> folium.Map:
     """
-    Dibuja la ruta en bici usando ORS entre estaciones sobre un mapa interactivo.
+    Draws a bike route using ORS between stations on an interactive map.
 
     Args:
-        ruta (list): Lista de IDs de estaciones por las que pasa la ruta.
-        df_estaciones (pd.DataFrame): Debe tener columnas 'id', 'lat', 'lon'.
-        api_key (str): Clave de OpenRouteService.
+        route (list): List of station IDs representing the route.
+        stations_df (pd.DataFrame): Must contain columns 'id', 'lat', 'lon'.
+        station_info (dict): Contains info per station like available bikes, etc.
+        api_key (str): OpenRouteService API key.
 
     Returns:
-        folium.Map: Mapa interactivo con la ruta ciclista.
+        folium.Map: Interactive map with the bike route.
     """
-    if not ruta or df_estaciones.empty:
-        print("⚠️ Ruta vacía o sin datos.")
-        return None 
-    start = ruta[0] if ruta else None
-    last = ruta[-1] if ruta else None
-    last_l = ruta[-2] if len(ruta) > 1 else None
 
-    
+    if not route or stations_df.empty:
+        log("⚠️ Route is empty or station data is missing.")
+        return None
+
+    start = route[0] if route else None
+    end = route[-1] if route else None
+    penultimate = route[-2] if len(route) > 1 else None
 
     client = openrouteservice.Client(key=api_key)
     coords = []
 
-    for est_id in ruta:
-        fila = df_estaciones.loc[df_estaciones['id'] == est_id]
-        if not fila.empty:
-            lat = fila['lat'].values[0]
-            lon = fila['lon'].values[0]
-            coords.append((lon, lat))  # ORS espera (lon, lat)
+    for station_id in route:
+        row = stations_df.loc[stations_df['id'] == station_id]
+        if not row.empty:
+            lat = row['lat'].values[0]
+            lon = row['lon'].values[0]
+            coords.append((lon, lat))  # ORS expects (lon, lat)
         else:
-            log(f"⚠️ Estación {est_id} no encontrada en el DataFrame.")
+            log(f"⚠️ Station {station_id} not found in the DataFrame.")
 
     m = folium.Map(location=(coords[0][1], coords[0][0]), zoom_start=14)
 
     for i, (lon, lat) in enumerate(coords):
-        huecos, bicis, t_acum, llegada_real, llegada_pred = info[ruta[i]]
-        ad = df_estaciones.loc[df_estaciones['id'] == ruta[i], ['address']].values[0][0]
-        if ruta[i] == start:    
-            c = 'cadetblue' 
-            cb = 'teal'       
+        available_docks, available_bikes, time_accum, actual_arrival, predicted_arrival = station_info[route[i]]
+        address = stations_df.loc[stations_df['id'] == route[i], ['address']].values[0][0]
+
+        # Custom marker and popup content
+        if route[i] == start:
+            color = 'cadetblue'
+            border_color = 'teal'
             label = f"""
-                <div style="width:400px;
-                font-size:11px;">
-                <h5>🚴 Start - Station {ruta[i]}</h5><br>
-                <b>Address:</b> {ad}<br>
-                🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
-                ⏱ <b>Time:</b> {t_acum:.1f} min<br>
-                🚲 <b>Available bikes at {llegada_pred.strftime('%H:%M')}:</b> {bicis}<br>
-                🅿️ <b>Available spots at {llegada_pred.strftime('%H:%M')}:</b> {huecos}
+                <div style="width:400px; font-size:11px;">
+                <h5>🚴 Start - Station {route[i]}</h5><br>
+                <b>Address:</b> {address}<br>
+                🕒 <b>Real arrival time:</b> {actual_arrival.strftime('%Y-%m-%d %H:%M')}<br>
+                ⏱ <b>Elapsed time:</b> {time_accum:.1f} min<br>
+                🚲 <b>Bikes at {predicted_arrival.strftime('%H:%M')}:</b> {available_bikes}<br>
+                🅿️ <b>Spots at {predicted_arrival.strftime('%H:%M')}:</b> {available_docks}
                 </div>
-                """
-        elif ruta[i] == last:
-            c = 'cadetblue'
-            cb = 'teal'  
+            """
+        elif route[i] == end:
+            color = 'cadetblue'
+            border_color = 'teal'
             label = f"""
-                <div style="width:400px;
-                font-size:11px;">
-                <h5>🚴 End - Station {ruta[i]}</h5><br>
-                <b>Address:</b> {ad}<br>
-                🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
-                ⏱ <b>Time:</b> {t_acum:.1f} min<br>
-                🚲 <b>Available bikes at {llegada_pred.strftime('%H:%M')}:</b> {bicis}<br>
-                🅿️ <b>Available spots at {llegada_pred.strftime('%H:%M')}:</b> {huecos}
+                <div style="width:400px; font-size:11px;">
+                <h5>🚴 End - Station {route[i]}</h5><br>
+                <b>Address:</b> {address}<br>
+                🕒 <b>Real arrival time:</b> {actual_arrival.strftime('%Y-%m-%d %H:%M')}<br>
+                ⏱ <b>Elapsed time:</b> {time_accum:.1f} min<br>
+                🚲 <b>Bikes at {predicted_arrival.strftime('%H:%M')}:</b> {available_bikes}<br>
+                🅿️ <b>Spots at {predicted_arrival.strftime('%H:%M')}:</b> {available_docks}
                 </div>
-                """
-    
+            """
         else:
-            c = 'CornflowerBlue'
-            cb = 'RoyalBlue'
+            color = 'CornflowerBlue'
+            border_color = 'RoyalBlue'
             label = f"""
-                <div style="width:400px;
-                font-size:11px;">
-                <h5>🚴 Bike Station {ruta[i]}</h5><br>
-                <b>Address:</b> {ad}<br>
-                🕒 <b>Real arrival hour:</b> {llegada_real.strftime('%Y-%m-%d %H:%M')}<br>
-                ⏱ <b>Time:</b> {t_acum:.1f} min<br>
-                🚲 <b>Available bikes at {llegada_pred.strftime('%H:%M')}:</b> {bicis}<br>
-                🅿️ <b>Available spots at {llegada_pred.strftime('%H:%M')}:</b> {huecos}
+                <div style="width:400px; font-size:11px;">
+                <h5>🚴 Bike Station {route[i]}</h5><br>
+                <b>Address:</b> {address}<br>
+                🕒 <b>Real arrival time:</b> {actual_arrival.strftime('%Y-%m-%d %H:%M')}<br>
+                ⏱ <b>Elapsed time:</b> {time_accum:.1f} min<br>
+                🚲 <b>Bikes at {predicted_arrival.strftime('%H:%M')}:</b> {available_bikes}<br>
+                🅿️ <b>Spots at {predicted_arrival.strftime('%H:%M')}:</b> {available_docks}
                 </div>
-                """
-        
+            """
+
         folium.Marker(
             location=(lat, lon),
             popup=label,
-            tooltip=f"Station {i+1} / {len(ruta)}",
+            tooltip=f"Station {i+1} / {len(route)}",
             icon=BeautifyIcon(
                 icon_shape='marker',
-                number=ruta[i],
-                border_color=cb,
-                background_color=c,
+                number=route[i],
+                border_color=border_color,
+                background_color=color,
                 text_color='white'
             )
         ).add_to(m)
 
+    # Draw real routes between consecutive station pairs
+    for i in range(len(coords) - 1):
+        current_station = route[i]
+        next_station = route[i + 1]
 
-    # Añadir rutas reales entre pares consecutivos
-        for i in range(len(coords) - 1):
-            est_actual = ruta[i]
-            est_siguiente = ruta[i + 1]
+        color = 'cadetblue'  # Default color
 
-            # Valor por defecto (color azul)
-            color = 'cadetblue'
+        # If first station has no bikes
+        if current_station == start and station_info[current_station][1] == 0:
+            color = 'yellow'
 
-            # Tramo inicial: sin bicis
-            if est_actual == start and info[est_actual][1] == 0:
-                color = 'yellow'
+        # If penultimate station has no free docks
+        if current_station == penultimate and station_info[current_station][0] == 0:
+            color = 'salmon'
 
-            # Tramo final: sin huecos en penúltima
-            if est_actual == last_l and info[est_actual][0] == 0:
-                color = 'salmon'
+        try:
+            segment = client.directions(
+                coordinates=[coords[i], coords[i + 1]],
+                profile='cycling-regular',
+                format='geojson'
+            )
+        except Exception:
+            st.warning("The API key is invalid or has expired.", icon="⚠️")
+            return None
 
-            try:
-                segmento = client.directions(
-                    coordinates=[coords[i], coords[i + 1]],
-                    profile='cycling-regular',
-                    format='geojson'
-                )
-            except Exception as e:
-                st.warning(f"The API key has expired or is invalid.", icon="⚠️")
-                return None  # Salir de la función inmediatamente
+        folium.GeoJson(
+            segment,
+            name=f"Segment {i+1}",
+            style_function=lambda x, col=color: {
+                'color': col,
+                'weight': 5,
+                'opacity': 0.8,
+                'dashArray': '5,5'  # Remove for solid lines
+            }
+        ).add_to(m)
 
-            
-
-            folium.GeoJson(
-                segmento,
-                name=f"Tramo {i+1}",
-                style_function=lambda x, col=color: {
-                    'color': col,
-                    'weight': 5,
-                    'opacity': 0.8,
-                    'dashArray': '5,5'  # Puedes quitar esta línea si no quieres línea discontinua
-                }
-            ).add_to(m)
-
+    # Add a legend
     legend_html = '''
     <div style="
         position: fixed;
@@ -456,62 +413,69 @@ def mapear_ruta(ruta: list,
         padding: 10px;
         color: black;
         box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
-        ">
-        <i class="fa fa-map-marker fa-2x" style="color:cadetblue"></i> Start or Finish Station<br>
-        <i class="fa fa-map-marker fa-2x" style="color:CornflowerBlue"></i> Bike Station <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="cadetblue" stroke-width="3"/></svg> Cycling <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="yellow" stroke-width="3"/></svg> Walking <br>
-        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="salmon" stroke-width="3"/></svg> Cycling (for parking) <br>
-        
+    ">
+        <i class="fa fa-map-marker fa-2x" style="color:cadetblue"></i> Start or End Station<br>
+        <i class="fa fa-map-marker fa-2x" style="color:CornflowerBlue"></i> Intermediate Station<br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="cadetblue" stroke-width="3"/></svg> Cycling<br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="yellow" stroke-width="3"/></svg> Walking<br>
+        <svg width="20" height="10"><line x1="0" y1="5" x2="20" y2="5" stroke="salmon" stroke-width="3"/></svg> Cycling (no parking)<br>
     </div>
     '''
 
-
     m.get_root().html.add_child(folium.Element(legend_html))
-       
 
     return m
 
-import pandas as pd
-import folium
-from folium.plugins import BeautifyIcon
-def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> folium.Map:
-    # Redondear al siguiente cuarto de hora
-    timestamp_filtro = round_to_next_15min(timestamp_filtro)
+def create_station_map(df: pd.DataFrame, 
+                       timestamp_filter: pd.Timestamp) -> folium.Map:
+    """
+    Creates a map displaying bike stations with availability at a specific timestamp.
 
-    # Asegurarse de que el índice es timestamp
+    Args:
+        df (pd.DataFrame): Must contain 'timestamp' index and columns: 'id', 'lat', 'lon',
+                           'address', 'available_spaces', 'predicted'.
+        timestamp_filter (pd.Timestamp): The timestamp to filter station data by.
+
+    Returns:
+        folium.Map: An interactive map with station markers and availability info.
+    """
+
+    # Round timestamp to the next 15-minute interval
+    timestamp_filter = round_to_next_15min(timestamp_filter)
+
+    # Ensure the index is 'timestamp'
     if df.index.name != 'timestamp':
         df = df.set_index('timestamp')
         df = df.sort_index()
 
-    # Intentar acceder directamente al timestamp
+    # Try to filter by the exact timestamp
     try:
-        filtrado = df.loc[[timestamp_filtro]]
+        filtered = df.loc[[timestamp_filter]]
     except KeyError:
-        raise ValueError(f"No hay datos exactos para {timestamp_filtro}")
+        raise ValueError(f"No data found for timestamp {timestamp_filter}")
 
-    if filtrado.empty:
-        raise ValueError(f"No hay datos para {timestamp_filtro}")
+    if filtered.empty:
+        raise ValueError(f"No data available at {timestamp_filter}")
 
-    # Crear el mapa centrado en la media de coordenadas
-    center_lat = filtrado["lat"].mean()
-    center_lon = filtrado["lon"].mean()
-    mapa = folium.Map(location=[center_lat, center_lon], zoom_start=14)
+    # Create a map centered on the average coordinates
+    center_lat = filtered["lat"].mean()
+    center_lon = filtered["lon"].mean()
+    map_ = folium.Map(location=[center_lat, center_lon], zoom_start=14)
 
-    # Añadir marcadores
-    for row in filtrado.itertuples():
-        popup_text = f"""
-        <div style="width:400px;
-        font-size:11px;">
-        <h6>🚴 Station {row.id} .</h6>  <br>
-        <b> Address: </b> {row.address}<br>
-        🚲 <b>Available bike spaces at {timestamp_filtro.strftime('%H:%M')}:</b> {row.available_spaces}<br>
-        🅿️ <b>Predicted bikes available at {timestamp_filtro.strftime('%H:%M')}:</b> {round(row.predicted)}
+    # Add markers for each station
+    for row in filtered.itertuples():
+        popup_html = f"""
+        <div style="width:400px; font-size:11px;">
+            <h6>🚴 Station {row.id}</h6><br>
+            <b>Address:</b> {row.address}<br>
+            🚲 <b>Available spaces at {timestamp_filter.strftime('%H:%M')}:</b> {row.available_spaces}<br>
+            🅿️ <b>Predicted bikes at {timestamp_filter.strftime('%H:%M')}:</b> {round(row.predicted)}
         </div>
         """
+
         folium.Marker(
             location=[row.lat, row.lon],
-            popup=popup_text,
+            popup=popup_html,
             icon=BeautifyIcon(
                 icon_shape='marker',
                 number=row.id,
@@ -519,9 +483,10 @@ def crear_mapa_estaciones(df: pd.DataFrame, timestamp_filtro: pd.Timestamp) -> f
                 background_color='teal',
                 text_color='white'
             )
-        ).add_to(mapa)
+        ).add_to(map_)
 
-    return mapa
+    return map_
+
 
 
 
@@ -535,7 +500,7 @@ def main():
     salida_datetime = datetime(2025, 5, 1, 8, 0)  # Hora de salida
     max_tiempo = 30  # Tiempo máximo en minutos
     log(f"[INFO] Starting A* search from {start} to {goal} at {salida_datetime} with max time {max_tiempo} min")
-    ruta, info = a_star_con_distancia(start, goal, salida_datetime, T, D, W, P, mayo_merged, max_tiempo)
+    ruta, info = a_star_distance(start, goal, salida_datetime, T, D, W, P, mayo_merged, max_tiempo)
     if ruta is None:
         log("[FAIL] No valid route found")
         return
@@ -550,7 +515,7 @@ def main():
 
         return
     
-    map_ruta = mapear_ruta(ruta, mayo_merged, info, api_key)
+    map_ruta = map_route(ruta, mayo_merged, info, api_key)
     log("[OK] Map created")
 
 if __name__ == '__main__':

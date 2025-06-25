@@ -179,14 +179,14 @@ elif tabs == "Map":
         # Botón para generar el mapa
             
             if st.button("🗺️ All Station Generation"):
-                m1 = crear_mapa_estaciones(mayo_merged, timestamp)
+                m1 = create_station_map(mayo_merged, timestamp)
                 st.session_state["mapa_generado"] = True
                 st.session_state["ultimo_timestamp"] = timestamp
 
             # Mostrar el mapa si fue generado
             if st.session_state.get("mapa_generado", False):
                 # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
-                m1 = crear_mapa_estaciones(mayo_merged, st.session_state["ultimo_timestamp"])
+                m1 = create_station_map(mayo_merged, st.session_state["ultimo_timestamp"])
                 st_folium(m1, width=750, height=450, returned_objects=[])
             
         with right:
@@ -202,7 +202,7 @@ elif tabs == "Map":
                 if end in [168, 105, 146]:
                     st.warning("The end station is not available for routes. Please choose another station.", icon="⚠️")
 
-                route, info = a_star_con_distancia(start, end, timestamp, T, D, W, P,mayo_merged, max_tiempo=30)
+                route, info = a_star_distance(start, end, timestamp, T, D, W, P,mayo_merged, max_duration=30)
                 st.write(f":blue-background[Route from station {start} to station {end}:]")
                 for s,t in info.items():
                     st.write(f" - **Station {s}**: at {t[3].strftime('%H:%M')}")
@@ -220,7 +220,7 @@ elif tabs == "Map":
         # Si no hay mayo_merged, no se puede generar el mapa
         # Si no hay api_key, no se puede generar el mapa
         if st.button("🗺️ Route Map Generation"):
-            m2 = mapear_ruta(route, mayo_merged, info, api_key)
+            m2 = map_route(route, mayo_merged, info, api_key)
             st.session_state["mapa_ruta"] = True
             st.session_state["ultimo_timestamp"] = timestamp
 
@@ -228,7 +228,7 @@ elif tabs == "Map":
         # Mostrar el mapa si fue generado
         if st.session_state.get("mapa_ruta", False):
             # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
-            m2 = mapear_ruta(route, mayo_merged, info, api_key)
+            m2 = map_route(route, mayo_merged, info, api_key)
             if m2 is not None:
                 st_folium(m2, width=1000, height= 500, returned_objects=[])
 

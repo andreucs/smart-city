@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import calendar
 from typing import List
-import src.config
+import src.config #este
 import joblib
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import math
@@ -464,18 +464,17 @@ def plot_naive_forecast(
     abril = df.loc[is_april_2025].copy()
     mayo = df.loc[is_may_2025].copy()
 
-    # Cambia el nombre de la columna de bicis en abril para que no se repita
+    # Change the name of the bikes column in April so it doesn't repeat
     abril = abril.rename(columns={'bikes_available': 'bikes_april'})
     abril_dict = abril.set_index(['id', 'day', 'hour', 'minute'])['bikes_april'].to_dict()
 
-    #se muestra una barra de progreso al apricar la función 
-    
-    tqdm.pandas()  # Habilita tqdm con pandas
+    # Progress bar with tqdm
+    tqdm.pandas() 
     def lookup_forecast(row):
         key = (row['id'], row['day'], row['hour'], row['minute'])
         return abril_dict.get(key, None)
 
-    # Predecimos con barra de progreso
+    # Prediction
     mayo['forecast_naive'] = mayo.progress_apply(lookup_forecast, axis=1)
 
     # Choose two professional colors from a matplotlib qualitative colormap
@@ -585,18 +584,17 @@ def plot_metrics_by_hour_naive_forecast(df: pd.DataFrame) -> None:
     abril = df.loc[is_april_2025].copy()
     mayo = df.loc[is_may_2025].copy()
 
-    # Cambia el nombre de la columna de bicis en abril para que no se repita
+    # Change the name of the bikes column in April so it doesn't repeat
     abril = abril.rename(columns={'bikes_available': 'bikes_april'})
     abril_dict = abril.set_index(['id', 'day', 'hour', 'minute'])['bikes_april'].to_dict()
 
-    #se muestra una barra de progreso al apricar la función 
-    
-    tqdm.pandas()  # Habilita tqdm con pandas
+    # Progress bar with tqdm
+    tqdm.pandas()  
     def lookup_forecast(row):
         key = (row['id'], row['day'], row['hour'], row['minute'])
         return abril_dict.get(key, None)
 
-    # Predecimos con barra de progreso
+    # Prediction
     mayo['forecast_naive'] = mayo.progress_apply(lookup_forecast, axis=1)
     mayo_filtered = mayo[mayo['day'] != 31]
 
@@ -710,7 +708,6 @@ def plot_pdp_or_ice(
     resto = df.loc[~is_may_2025].copy()
     resto2 = resto[resto["id"].isin(station_ids)]
     # Load the retrained model
-    # model_path = os.path.join('model', 'retrained_model.pkl')
     model = joblib.load(f"../model/retrained_model.pkl")
 
     # Prepare features and run inference
@@ -718,32 +715,26 @@ def plot_pdp_or_ice(
     feature_cols = [c for c in resto2.columns if c not in ('timestamp', y)]
     X_train = resto2[feature_cols]
 
-    
-    #mayo['predicted'] = model.predict(X_test)
-
-    # configuración de las características de la gráfica
+    # Config characteristics of the plot
     common_params = {
     "subsample": 500, #uses a subsample of the data to speed up the computation
     "grid_resolution": 50,
-    "n_jobs": -1,  # Usa todos los núcleos disponibles
+    "n_jobs": -1,  # uses all available cores
     "random_state": 0,
     "grid_resolution": 100 
 }
     categorical_features = ['weekday', 'is_weekend']
     ft_c = [f for f in ft if isinstance(f, str) and f in categorical_features]
-
-
     # ft_c = [f for f in feature_cols if f in categorical_features and len(f) == 1]  # selecciona las variables categóricas
 
     if len(ft_c) == 0 or choice_n != 'average':
         ft_c = None
-    # variables de interes
+
     features_info = {
     'features': ft,
     'categorical_features':ft_c
 }
-    
-
+    # Define the number of columns and rows for the subplots
     if len(ft) == 1:
         cols = 1
         rows = 1
@@ -759,11 +750,13 @@ def plot_pdp_or_ice(
     elif len(ft) in [5, 6]:
         cols = 3
         rows = 2
-    
-    c = False # para que no se centren los plots a menos que sea 'both' o 'ice'
+
+    # Define indicator so that the plots are only centered if the choice is 'both' or 'ice'
+    c = False
     if choice_n != 'average':
         c = True
-    #realizamos el plot de las variables de interes
+
+    # Plot
     _, ax = plt.subplots(ncols=cols, nrows=rows, figsize=(12, 10), constrained_layout=True)
     
     display = PartialDependenceDisplay.from_estimator(
@@ -774,26 +767,27 @@ def plot_pdp_or_ice(
     **common_params,
     ax=ax,
     kind= choice_n,
-    ice_lines_kw= {"color":"gray", "alpha":0.6}, # para el caso de ice
-    pd_line_kw = {"color": "black", "lw" : 0.8} #
+    ice_lines_kw= {"color":"gray", "alpha":0.6}, 
+    pd_line_kw = {"color": "black", "lw" : 0.8} 
 )
 
     if choice_n == 'both':
-                # Elimina leyendas internas de cada subplot
+        # Delete the internal legends of the display
         for idx, ax in enumerate( display.axes_.ravel()):
             ax.legend_.remove() 
 
             if idx ==  1:
                 ax.legend(
-                    loc='upper center',              # coloca la leyenda arriba y centrada dentro del subplot
-                    bbox_to_anchor=(0.5, 1.10),      # la empuja aún más arriba, fuera del área del eje
-                    ncol=2,                          # muestra la leyenda en 2 columnas
-                    frameon=False,                   # sin borde alrededor
-                    fontsize=9                       # tamaño del texto
+                    loc='upper center',              # legend situated in the upper center
+                    bbox_to_anchor=(0.5, 1.10),      # pushes it even further up, outside the axis area
+                    ncol=2,                          # shows the legend in 2 columns
+                    frameon=False,                   # no border around
+                    fontsize=9                       # text size
                 )
 
-    fig = display.figure_  # esto es una figura real
+    fig = display.figure_  
 
+    # Details of the figure
     fig.suptitle(
         (
             f"Partial dependence of the number of bike rentals in stations {station_ids}\n"
