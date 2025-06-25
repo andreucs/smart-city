@@ -163,7 +163,7 @@ def main() -> None:
     log("[OK] duration_matrix.csv saved")
 
     durations_w = compute_walking_durations(coords, api_key)
-    log("[INFO] Saving duration matrix to 'duration_matrix.csv'")
+    log("[INFO] Saving duration matrix to 'duration_w_matrix.csv'")
     dur_w_df = pd.DataFrame(durations_w, index=station_ids, columns=station_ids)
     dur_w_df.index.name = "id"
     dur_w_df.reset_index().to_csv("duration_w_matrix.csv", index=False)
