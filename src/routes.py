@@ -1,9 +1,14 @@
 import pandas as pd
-from src.utils import * #este
+from src.utils import *
+try:
+    from src.utils import *
+    from src.ors_cycling import *
+except:
+    from utils import *
+    from ors_cycling import *
 import os
-from src.ors_cycling import * #este
 from heapq import heappush, heappop
-
+from datetime import datetime, timedelta
 import datetime
 import folium
 import openrouteservice
@@ -98,8 +103,6 @@ def round_to_next_15min(dt):
         minute = 0
     return dt.replace(minute=minute, second=0, microsecond=0)
 
-from heapq import heappush, heappop
-from datetime import datetime, timedelta
 
 def round_to_next_15min(dt):
     # If the time is already a multiple of 15 minutes, return it as is
