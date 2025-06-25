@@ -152,9 +152,8 @@ data/duration_matrix.csv
 # models
 # model/final_model.pkl
 # model/retrained_model.pkl
+.streamlit/
 
 # figures, tentative
 figures/
 
-#api_key
-.streamlit/secrets.toml

@@ -15,7 +15,7 @@ import torch
 st.set_page_config(
     layout="wide"
 )
-st.logo('figures/logo-contract.png')
+st.logo('images_4_app/logo-contract.png')
 st.markdown('<style>' + open('src/style.css').read() + '</style>', unsafe_allow_html=True)
 
 
@@ -67,7 +67,7 @@ if tabs == "Home":
 
     """
     st.write(txt)
-    st.image('figures/valenbici_bici.jpeg')
+    st.image('images_4_app/valenbici_bici.jpeg')
 
 
     st.warning('It is required to have installed the model llama3.2 so that the chat bot can function properly.', icon="⚠️")
