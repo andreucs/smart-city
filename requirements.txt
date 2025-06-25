@@ -274,7 +274,9 @@ ptyprocess==0.7.0
 pure-eval==0.2.3
     # via stack-data
 pyarrow==20.0.0
-    # via streamlit
+    # via
+    #   smart-city (pyproject.toml)
+    #   streamlit
 pydantic==2.11.7
     # via
     #   langchain
