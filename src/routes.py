@@ -31,7 +31,6 @@ def prepare_df():
         pd.DataFrame: A DataFrame containing the timestamp, station ID, predicted bikes available,
                       and available spaces at each station.
     """
-    df = pd.read_csv(f"./data/dataset.csv")
     distances = pd.read_csv(f"./data/distance_matrix.csv")
     times = pd.read_csv(f"./data/duration_matrix.csv")
     times_w = pd.read_csv(f"./data/duration_w_matrix.csv")
