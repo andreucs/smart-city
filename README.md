@@ -83,10 +83,6 @@ git clone git@github.com:andreucs/smart-city.git
 uv sync
 source .venv/bin/activate
 ```
-3. **Install the dependencies**
-```bash
-uv sync
-```
 
 ## Future Enhancements
 
