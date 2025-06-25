@@ -76,16 +76,16 @@ ValenBisi’s official platform lacks predictive features and quick access to us
 
 1. **Clone the repository**
 ```bash
-   git clone git@github.com:andreucs/smart-city.git
+git clone git@github.com:andreucs/smart-city.git
 ```
 2. **Create and activate a virtual environment**
 ```bash
-      uv sync
-      source .venv/bin/activate
+uv sync
+source .venv/bin/activate
 ```
 3. **Install the dependencies**
 ```bash
-   uv sync
+uv sync
 ```
 
 ## Future Enhancements
@@ -107,5 +107,6 @@ You can access the app at [https://smart-city-bj5jkxaufvrywmxsbwvz4p.streamlit.a
 *Developed by A-squared team*
 
 Andreu Bonet Pavia
+
 Anna Gil Moliner
 
