@@ -20,7 +20,7 @@ st.markdown('<style>' + open('src/style.css').read() + '</style>', unsafe_allow_
 
 
 # Save the API key
-api_key = st.secrets["ORS_API_KEY"]
+api_key = st.secrets["key"]
 
 # Sidebar UI
 with st.sidebar:
