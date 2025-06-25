@@ -130,9 +130,10 @@ elif tabs == "Map":
         Use the slider to choose the time of day and the calendar to select the specific date. Finally click the button to generate the map with the stations and their predicted availability.
         Additionally, you can plan :gray-background[routes] by selecting start and end stations and enabling the route algorithm option.
 
-        REMEMBER: when chanching the date or time, you must click the button to generate the map again.
+        
     """
     st.write(txt)
+    st.info("REMEMBER: when changing the date or time, you must click the button to generate the map again.")
     for key in ["mapa_generado", "mapa_ruta", "ultimo_timestamp"]:
         if key not in st.session_state:
             st.session_state[key] = None if "mapa" in key or "timestamp" in key else False
