@@ -3,9 +3,13 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import calendar
 from typing import List
-import src.config #este
+try:
+    import src.config
+except:
+    import config
+import os
 import joblib
-from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import math
 from matplotlib.ticker import MultipleLocator, FuncFormatter
 from matplotlib import rcParams
@@ -804,6 +808,108 @@ def plot_pdp_or_ice(
     fig.savefig(filename, dpi=300, bbox_inches='tight')
 
 
+def plot_comparison_metrics(df: pd.DataFrame) -> None:
+    """
+    Compute and plot comparison of error metrics (MAE, RMSE, R2) for May 2025
+    between a naive forecast and a LightGBM model. Displays three bar charts
+    side by side and saves the figure as a PNG at 300 DPI.
+
+    Steps:
+      1. Ensure timestamp is datetime and create time columns.
+      2. Prepare naive forecast from April 2025.
+      3. Load LightGBM model and predict for May 2025 using the same features.
+      4. Compute MAE, RMSE, and R² for each method.
+      5. Print metric values to console.
+      6. Plot metrics: one subplot for each metric with two bars (Naive vs LightGBM).
+      7. Save figure to '../figures/valenbici_comparison_may2025.png'.
+    """
+    # Ensure timestamp is datetime
+    if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
+        df = df.copy()
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+
+    # Create time columns (day, hour, minute)
+    df = create_time_columns(df)
+
+    # Filter to April and May 2025
+    is_april = (df['timestamp'].dt.year == 2025) & (df['timestamp'].dt.month == 4)
+    is_may = (df['timestamp'].dt.year == 2025) & (df['timestamp'].dt.month == 5)
+
+    abril = df.loc[is_april].copy()
+    mayo = df.loc[is_may].copy()
+
+    # Build naive forecast dictionary from April data
+    abril = abril.rename(columns={'bikes_available': 'bikes_april'})
+    abril_dict = abril.set_index(['id', 'day', 'hour', 'minute'])['bikes_april'].to_dict()
+
+    # Apply naive forecast to May
+    tqdm.pandas()
+    def lookup_naive(row):
+        return abril_dict.get((row['id'], row['day'], row['hour'], row['minute']), None)
+
+    mayo['forecast_naive'] = mayo.progress_apply(lookup_naive, axis=1)
+    mayo = mayo[mayo['day'] != 31]  # optional: remove incomplete day
+
+    # Load LightGBM model
+    model = joblib.load(os.path.join('..', 'model', 'retrained_model.pkl'))
+    # Use the exact feature names from training
+    try:
+        trained_features = model.booster_.feature_name()
+    except AttributeError:
+        # fallback for sklearn API
+        trained_features = model.feature_name_
+    # Ensure the columns exist
+    missing = [f for f in trained_features if f not in mayo.columns]
+    if missing:
+        raise ValueError(f"Missing feature columns for prediction: {missing}")
+    # Predict
+    mayo['prediction_lgbm'] = model.predict(mayo[trained_features])
+
+    # Compute metrics for each method
+    methods = {
+        'Naive': mayo['forecast_naive'],
+        'LightGBM': mayo['prediction_lgbm']
+    }
+    metrics = ['MAE', 'RMSE', 'R2']
+    results = {m: {} for m in metrics}
+
+    y_true = mayo['bikes_available']
+    for name, preds in methods.items():
+        mae = mean_absolute_error(y_true, preds)
+        mse = mean_squared_error(y_true, preds)
+        rmse = math.sqrt(mse)
+        r2 = r2_score(y_true, preds)
+        results['MAE'][name] = mae
+        results['RMSE'][name] = rmse
+        results['R2'][name] = r2
+
+    # Print results to console
+    print("Metric comparison for May 2025:")
+    for metric in metrics:
+        naive_val = results[metric]['Naive']
+        lgbm_val = results[metric]['LightGBM']
+        print(f"{metric}: Naive = {naive_val:.4f}, LightGBM = {lgbm_val:.4f}")
+
+    # Plot bar charts side by side
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5), constrained_layout=True)
+    colors = {'Naive': '#1f77b4', 'LightGBM': '#dc0747'}
+
+    for ax, metric in zip(axes, metrics):
+        values = [results[metric]['Naive'], results[metric]['LightGBM']]
+        ax.bar(methods.keys(), values, color=[colors[k] for k in methods.keys()])
+        ax.set_title(f"{metric} Comparison", fontsize=12, fontweight='bold')
+        ax.set_ylabel(metric, fontsize=10, fontweight='bold')
+        # ax.grid(axis='y', linestyle='--', alpha=0.3)
+
+    # Super-title and labels
+    fig.suptitle("Valenbici: Metric Comparison — May 2025", fontsize=16, fontweight='bold')
+
+    # Save figure
+    output_path = os.path.join('..', 'figures', 'valenbici_comparison_may2025.png')
+    fig.savefig(output_path, dpi=300, bbox_inches='tight')
+
+    # Display
+    plt.show()
 
 
 
