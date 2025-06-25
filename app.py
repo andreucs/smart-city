@@ -154,16 +154,28 @@ elif tabs == "Map":
     hora_inicio = dt.time(0, 0)
     hora_fin = dt.time(23, 59)
 
-    hora_seleccionada = st.slider(
+    st.slider(
         "**Select a time in the day:**",
         min_value=hora_inicio,
         max_value=hora_fin,
         value=dt.time(8, 0),
-        step=dt.timedelta(minutes=1)
+        step=dt.timedelta(minutes=1),
+        key="hora_temp"  # guardamos en session_state
     )
 
+    # Botón para confirmar hora
+    if st.button("✅ Confirm Time Selection"):
+        st.session_state["hora_seleccionada"] = st.session_state["hora_temp"]
+        st.session_state["mapa_generado"] = True  # Marcar que se debe generar el mapa
+        st.session_state["ultimo_timestamp"] = dt.datetime.combine(selected_date, st.session_state["hora_temp"])
+
+    # Mostrar hora confirmada o inicializar si no existe
+    hora_confirmada = st.session_state.get("hora_seleccionada", dt.time(8, 0))
+    timestamp = dt.datetime.combine(selected_date, hora_confirmada)
+        
+
     # Combine date and time into a single timestamp
-    timestamp = dt.datetime.combine(selected_date, hora_seleccionada)
+    # timestamp = dt.datetime.combine(selected_date, hora_seleccionada)
     T, D, W, P, mayo_merged = prepare_df()
     with st.container(height=600, border=True):
         
@@ -173,16 +185,10 @@ elif tabs == "Map":
         # Map of all stations
         with left:
             # Button to generate the map
-            if st.button("🗺️ All Station Generation"):
-                m1 = create_station_map(mayo_merged, timestamp)
-                st.session_state["mapa_generado"] = True
-                st.session_state["ultimo_timestamp"] = timestamp
-
-            # Show the map if it was generated
             if st.session_state.get("mapa_generado", False):
-                # Regenerate the map just to visualize it, but don't save it
                 m1 = create_station_map(mayo_merged, st.session_state["ultimo_timestamp"])
                 st_folium(m1, width=750, height=450, returned_objects=[])
+
             
         # Route algorithm section
         with right:
