@@ -61,7 +61,7 @@ def prepare_df():
     }
 
     
-    mayo = pd.read_parquet("../data/may_with_predictions.parquet")
+    mayo = pd.read_parquet("./data/may_with_predictions.parquet")
 
     # Filter the DataFrame to keep only relevant columns
     mayo_filtered = mayo[['timestamp','id', 'predicted']]
