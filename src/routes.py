@@ -61,25 +61,7 @@ def prepare_df():
     }
 
     
-    if not pd.api.types.is_datetime64_any_dtype(df['timestamp']):
-        df = df.copy()
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-
-    is_may_2025 = (
-            (df['timestamp'].dt.year  == 2025) &
-            (df['timestamp'].dt.month == 5)
-    )
-    mayo = df.loc[is_may_2025].copy()
-    
-
-    # Load the retrained model
-    model = joblib.load(f"./model/retrained_model.pkl")
-
-    # Prepare features and run inference
-    TARGET = 'bikes_available'
-    feature_cols = [c for c in mayo.columns if c not in ('timestamp', TARGET)]
-    X_test = mayo[feature_cols]
-    mayo['predicted'] = model.predict(X_test)
+    mayo = pd.read_parquet("../data/may_with_predictions.parquet")
 
     # Filter the DataFrame to keep only relevant columns
     mayo_filtered = mayo[['timestamp','id', 'predicted']]

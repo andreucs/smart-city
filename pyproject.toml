@@ -20,6 +20,7 @@ dependencies = [
     "optuna>=4.3.0",
     "pandas>=2.3.0",
     "polars>=1.30.0",
+    "pyarrow>=20.0.0",
     "pypdf2>=3.0.1",
     "requests>=2.32.4",
     "scikit-learn>=1.7.0",
