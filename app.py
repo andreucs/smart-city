@@ -181,11 +181,13 @@ elif tabs == "Map":
     T, D, W, P, mayo_merged = prepare_df()
     with st.container(height=600, border=True):
         
+        
         left, right = st.columns([3, 1], border=True)
         #log(f"[INFO] Data prepared for May 2025: {mayo_merged.shape[0]} rows")
 
         # Map of all stations
         with left:
+            st.write('🗺️ Map of Valenbisi Stations')
             # Button to generate the map
             if st.session_state.get("mapa_generado", False):
                 m1 = create_station_map(mayo_merged, st.session_state["ultimo_timestamp"])
