@@ -75,15 +75,15 @@ ValenBisi’s official platform lacks predictive features and quick access to us
 ## Local Setup
 
 1. **Clone the repository**
-   ```bash
+```bash
    git clone git@github.com:andreucs/smart-city.git
 ```
-2.  **Create and activate a virtual environment**
-      ```bash
+2. **Create and activate a virtual environment**
+```bash
       uv sync
       source .venv/bin/activate
-      ```
-3. Install the dependencies
+```
+3. **Install the dependencies**
 ```bash
    uv sync
 ```
