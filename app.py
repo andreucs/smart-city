@@ -11,26 +11,19 @@ import nest_asyncio
 import torch
 # import src.config as config
 
-
+# Configure the general settings of the app
 st.set_page_config(
     layout="wide"
 )
-# Establecer los límites del calendario: solo mayo 2025
 st.logo('figures/logo-contract.png')
-env_path = os.path.join(os.path.dirname(__file__), "src/.env")
-config = dotenv_values(env_path)
-api_key = st.secrets['ORS_API_KEY']
-
-# st.header("Custom tab component for on-hover navigation bar")
 st.markdown('<style>' + open('src/style.css').read() + '</style>', unsafe_allow_html=True)
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
 
+# Save the API key
+api_key = st.secrets['ORS_API_KEY']
 
-# Sidebar container for chat
+# Sidebar UI
 with st.sidebar:
-    
     st.divider()
     tabs = on_hover_tabs(tabName=['Home', 'Map', 'AskValenBisi'], 
                         iconName=['home', 'map', 'code'],
@@ -65,6 +58,7 @@ with st.sidebar:
     unsafe_allow_html=True
 )
 
+# First Page
 if tabs == "Home":
     st.header("Welcome to the ValenBisi Route App", divider="gray")
     txt = """
@@ -127,6 +121,8 @@ if tabs == "Home":
     url = "https://ollama.com/library/llama3.2"
     st.info("For more information about the installation check [link](%s)" % url)
 
+
+# Second Page
 elif tabs == "Map":
     st.header("ValenBisi Stations Map", divider="gray")
     txt = """
@@ -144,7 +140,7 @@ elif tabs == "Map":
     start_date = dt.date(2025, 5, 1)
     end_date = dt.date(2025, 5, 31)
 
-    # Mostrar el calendario con esos límites
+    # Calendar limited to May 2025
     selected_date = st.date_input(
         "**Select the day in which you are interested:**",
         value=start_date,
@@ -153,11 +149,10 @@ elif tabs == "Map":
     )
 
 
-    # Crear un rango de horas para mayo de 2025 (simulado en cualquier fecha)
+    # Slider for time 00:00 to 23:59
     hora_inicio = dt.time(0, 0)
     hora_fin = dt.time(23, 59)
 
-    # Slider de tiempo
     hora_seleccionada = st.slider(
         "**Select a time in the day:**",
         min_value=hora_inicio,
@@ -166,7 +161,7 @@ elif tabs == "Map":
         step=dt.timedelta(minutes=1)
     )
 
-    # Combinar fecha y hora seleccionadas
+    # Combine date and time into a single timestamp
     timestamp = dt.datetime.combine(selected_date, hora_seleccionada)
     T, D, W, P, mayo_merged = prepare_df()
     with st.container(height=600, border=True):
@@ -174,21 +169,21 @@ elif tabs == "Map":
         left, right = st.columns([3, 1], border=True)
         #log(f"[INFO] Data prepared for May 2025: {mayo_merged.shape[0]} rows")
 
-
+        # Map of all stations
         with left:
-        # Botón para generar el mapa
-            
+            # Button to generate the map
             if st.button("🗺️ All Station Generation"):
                 m1 = create_station_map(mayo_merged, timestamp)
                 st.session_state["mapa_generado"] = True
                 st.session_state["ultimo_timestamp"] = timestamp
 
-            # Mostrar el mapa si fue generado
+            # Show the map if it was generated
             if st.session_state.get("mapa_generado", False):
-                # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
+                # Regenerate the map just to visualize it, but don't save it
                 m1 = create_station_map(mayo_merged, st.session_state["ultimo_timestamp"])
                 st_folium(m1, width=750, height=450, returned_objects=[])
             
+        # Route algorithm section
         with right:
             r = st.toggle("Route Algorithm")
             if r:
@@ -197,45 +192,42 @@ elif tabs == "Map":
 
                 start = int(start) if start.isdigit() else 1
                 end = int(end) if end.isdigit() else 2
+                n = True
                 if start in [168, 105, 146]:
                     st.warning("The start station is not available for routes. Please choose another station.", icon="⚠️")
+                    n = False
                 if end in [168, 105, 146]:
                     st.warning("The end station is not available for routes. Please choose another station.", icon="⚠️")
+                    n = False
+                elif n:
+                        
+                    route, info = a_star_distance(start, end, timestamp, T, D, W, P,mayo_merged, max_duration=30)
+                    st.write(f":blue-background[Route from station {start} to station {end}:]")
+                    for s,t in info.items():
+                        st.write(f" - **Station {s}**: at {t[3].strftime('%H:%M')}")
 
-                route, info = a_star_distance(start, end, timestamp, T, D, W, P,mayo_merged, max_duration=30)
-                st.write(f":blue-background[Route from station {start} to station {end}:]")
-                for s,t in info.items():
-                    st.write(f" - **Station {s}**: at {t[3].strftime('%H:%M')}")
-
-    if r: 
+    # Map route section
+    if r and n: 
         st.subheader("Route Map")
         text = "Click the button below to generate the route map between the selected stations. " \
                "The route will be displayed on the map with the stations and the path taken."
         st.markdown(text)
 
-        # Botón para generar el mapa de la ruta
-        # Verifica si la ruta fue calculada antes de intentar mostrarla
-        # Si no hay ruta, no se puede generar el mapa
-        # Si no hay info, no se puede generar el mapa
-        # Si no hay mayo_merged, no se puede generar el mapa
-        # Si no hay api_key, no se puede generar el mapa
+        # Button to generate the route map
         if st.button("🗺️ Route Map Generation"):
             m2 = map_route(route, mayo_merged, info, api_key)
             st.session_state["mapa_ruta"] = True
             st.session_state["ultimo_timestamp"] = timestamp
 
 
-        # Mostrar el mapa si fue generado
+        # Show the map if it was generated
         if st.session_state.get("mapa_ruta", False):
-            # Vuelve a generar el mapa solo para visualizarlo, pero no lo guardes
+            # Regenerate the map just to visualize it, but don't save it
             m2 = map_route(route, mayo_merged, info, api_key)
             if m2 is not None:
                 st_folium(m2, width=1000, height= 500, returned_objects=[])
 
-
-        # st.write(info)
-        # st.write(route)
-
+# Last page
 elif tabs == "AskValenBisi":
     col1, col2 = st.columns([5,1])  # Adjust column ratios as needed
 
@@ -248,25 +240,6 @@ elif tabs == "AskValenBisi":
             if "chatbot_client" in st.session_state:
                 del st.session_state.chatbot_client
             st.rerun()
-
-    # st.subheader("AskValenBisi")
-
-    # Sidebar UI
-    # with st.sidebar:
-    #     st.header("RAG-based Chatbot")
-    #     st.markdown(
-    #         """
-    #         **Built by:**
-    #         - A-squared
-    #         """
-    #     )
-    #     st.divider()
-    #     if st.button("Clean chat history"):
-    #         st.session_state.messages = []
-    #         if "chatbot_client" in st.session_state:
-    #             del st.session_state.chatbot_client
-    #         st.rerun()
-
     
     # Initialize session state
     if "messages" not in st.session_state:
